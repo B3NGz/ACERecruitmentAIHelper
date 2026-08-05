@@ -100,7 +100,7 @@ export function loadCommonPartials(options = {}) {
     sidebarId = 'sidebar-placeholder',
     logoutModalId = 'logout-modal-placeholder',
     floatingBgId = 'floating-bg-placeholder',
-    basePath = '/Assets/partials/'
+    basePath = '../Assets/partials/'
   } = options;
 
   return loadPartials([
