@@ -6,7 +6,7 @@
 const CONFIG = {
     GOOGLE_CLIENT_ID: '1017608553091-1a8cla5nbt66t3gc8921n8d6hq4r42sf.apps.googleusercontent.com',
     API_BASE_URL: 'https://acerecruitmentai.onrender.com',
-    REDIRECT_URL: '/Dashboard/dashboard.html',
+   REDIRECT_URL: '../Dashboard/dashboard.html',
     SPLASH_DURATION: 1450,
 };
 
