@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>window.location.replace('/Dashboard/dashboard.html');</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Reports – ACERecruitmentAI</title>
+  <link rel="stylesheet" href="../Assets/css/main.css" />
+  <script>
+  (function() {
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+  
+  </script>
+  <style>
+    html.dark {
+      background-color: #0F1318 !important;
+    }
+    html:not(.dark) {
+      background-color: #F0F6FA !important;
+    }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="../Assets/images/favicon.svg" />
+  <link rel="apple-touch-icon" href="../Assets/images/logo.png" />
+  <meta name="theme-color" content="#0f1f2c" />
+</head>
+<body>
+
+  <!-- ===== FLOATING BACKGROUND ===== -->
+
+  <!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <div class="logo">
+    <img src="../Assets/images/favicon.svg" alt="ACERecruit Logo" class="logo-img" />
+    <span>ACERecruit</span>
+  </div>
+
+  <div class="sidebar-section">
+    <span class="sidebar-label" data-i18n="main">Main</span>
+    <nav>
+      <a href="/Dashboard/dashboard.html" class="nav-item" data-page="dashboard">
+        <span class="icon"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg></span>
+        <span class="label" data-i18n="dashboard">Dashboard</span>
+      </a>
+      <a href="/Campaign/campaign.html" class="nav-item" data-page="campaign">
+        <span class="icon"><svg viewBox="0 0 20 20" fill="none"><path d="M3 6H17M3 10H14M3 14H11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="1" y="3" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/></svg></span>
+        <span class="label" data-i18n="campaigns">Campaigns</span>
+      </a>
+      <a href="/Applicants/applicants.html" class="nav-item" data-page="applicants">
+        <span class="icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="7" cy="6" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M1 17C1 13.6863 3.68629 11 7 11C10.3137 11 13 13.6863 13 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="15" cy="7" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M13 17C13 14.7909 14.7909 13 17 13C19.2091 13 21 14.7909 21 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="label" data-i18n="applicants">Applicants</span>
+      </a>
+      <a href="/Assessments/assessment.html" class="nav-item" data-page="assessment">
+        <span class="icon"><svg viewBox="0 0 20 20" fill="none"><path d="M3 3L17 3L17 17L3 17L3 3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 8L17 8" stroke="currentColor" stroke-width="1.8"/><path d="M8 3L8 8" stroke="currentColor" stroke-width="1.8"/><path d="M7 13L10 16L13 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="label" data-i18n="assessments">Assessments</span>
+      </a>
+      <a href="/Rankings/rankings.html" class="nav-item" data-page="rankings">
+        <span class="icon"><svg viewBox="0 0 20 20" fill="none"><path d="M10 1L12.5 7.5L19 8L14 12.5L15.5 19L10 15.5L4.5 19L6 12.5L1 8L7.5 7.5L10 1Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+        <span class="label" data-i18n="rankings">Rankings</span>
+      </a>
+      <a href="/Interviews/interview-tracker.html" class="nav-item" data-page="interviews">
+        <span class="icon"><svg viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M2 8H18" stroke="currentColor" stroke-width="1.8"/><path d="M7 11L9 13L13 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="label" data-i18n="interviews">Interviews</span>
+      </a>
+      <a href="/Reports/client-reports.html" class="nav-item" data-page="reports">
+        <span class="icon"><svg viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="14" height="14" rx="1.5" stroke="currentColor" stroke-width="1.8"/><path d="M7 7H13M7 10H11M7 13H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="label" data-i18n="reports">Reports</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+  <span class="sidebar-label" data-i18n="general">General</span>
+  <nav class="general-nav">
+    <!-- User menu will be rendered here by user-menu.js -->
+    <!-- The old Settings link is removed – it's now inside the user dropdown -->
+    <a href="#" class="nav-item logout-btn" id="logoutSidebarBtn" data-page="logout">
+      <span class="icon"><svg viewBox="0 0 20 20" fill="none"><path d="M8 1H4C2.89543 1 2 1.89543 2 3V17C2 18.1046 2.89543 19 4 19H8M13 14L18 9L13 14ZM18 9L13 4L18 9ZM18 9H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="label" data-i18n="logout">Logout</span>
+    </a>
+  </nav>
+</div>
+
+  <div class="sidebar-notifications">
+    <div class="notification-item">
+      <span class="notification-icon"><svg viewBox="0 0 20 20" fill="none"><circle cx="7" cy="6" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M1 17C1 13.6863 3.68629 11 7 11C10.3137 11 13 13.6863 13 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="15" cy="7" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M13 17C13 14.7909 14.7909 13 17 13C19.2091 13 21 14.7909 21 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+      <span class="notification-label" data-i18n="new_applicants">New Applicants</span>
+      <span class="notification-badge" id="new-applicants-count">0</span>
+    </div>
+    <div class="notification-item">
+      <span class="notification-icon"><svg viewBox="0 0 20 20" fill="none"><path d="M3 6H17M3 10H14M3 14H11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="1" y="3" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/></svg></span>
+      <span class="notification-label" data-i18n="new_campaigns">New Campaigns</span>
+      <span class="notification-badge" id="new-campaigns-count">0</span>
+    </div>
+    <div class="notification-divider"></div>
+  </div>
+
+  <!-- ===== PREMIUM DAY/NIGHT TOGGLE ===== -->
+  <label class="dark-toggle-switch" id="darkModeToggleLabel" aria-label="Toggle dark mode">
+    <input type="checkbox" id="darkModeToggle" style="display:none;" />
+    <span class="toggle-track">
+      <span class="sky day"></span>
+      <span class="sky night"></span>
+      <span class="sky-glow"></span>
+      <span class="cloud cloud-1"><span class="cloud-bubble b1"></span><span class="cloud-bubble b2"></span><span class="cloud-bubble b3"></span></span>
+      <span class="cloud cloud-2"><span class="cloud-bubble b1"></span><span class="cloud-bubble b2"></span></span>
+      <span class="cloud cloud-3"><span class="cloud-bubble b1"></span><span class="cloud-bubble b2"></span><span class="cloud-bubble b3"></span></span>
+      <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span><span class="star s4"></span><span class="star s5"></span><span class="star s6"></span>
+      <span class="toggle-knob" id="toggleKnob"></span>
+    </span>
+    <span class="toggle-labels">
+      <span class="label-light" data-i18n="light">Light</span>
+      <span class="label-dark" data-i18n="dark">Dark</span>
+    </span>
+  </label>
+</aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+    <header class="dashboard-header">
+      <h1>Client Reports</h1>
+      <div class="header-actions" id="userMenuContainer">
+        <!-- user menu rendered by initUserMenu() -->
+      </div>
+    </header>
+
+    <div class="breadcrumbs-wrapper">
+      <ol class="breadcrumbs">
+        <li><a href="/Dashboard/dashboard.html">Dashboard</a><span class="separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg></span></li>
+        <li><span class="current">Reports</span></li>
+      </ol>
+    </div>
+
+    <!-- ===== STATS CARDS ===== -->
+    <section class="stats-grid">
+      <div class="stat-card"><span class="stat-label">Total Reports</span><span class="stat-value" id="total-reports"></span></div>
+      <div class="stat-card"><span class="stat-label">Generated Today</span><span class="stat-value" id="reports-today"></span></div>
+      <div class="stat-card"><span class="stat-label">Pending</span><span class="stat-value" id="pending-reports"></span></div>
+      <div class="stat-card"><span class="stat-label">Shared with Clients</span><span class="stat-value" id="shared-reports"></span></div>
+    </section>
+
+    <!-- ===== GENERATE CLIENT SUBMISSION PACK ===== -->
+    <section style="margin-bottom:2rem;">
+      <div class="stat-card" style="text-align:left;padding:1.5rem;">
+        <h2 class="section-title" style="margin-top:0;">Generate Client Submission Pack</h2>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;">Select one or more candidates to generate a professional PDF report for client submission.</p>
+
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;color:var(--text-secondary);">Select Campaign</label>
+          <div class="custom-dropdown" id="report-campaign-filter">
+            <button class="dropdown-btn" type="button">
+              <span class="selected-text">All Campaigns</span>
+              <span class="arrow"><svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </button>
+            <div class="dropdown-menu">
+              <div class="dropdown-search"><input type="text" class="dropdown-search-input" placeholder="" /></div>
+              <div class="dropdown-items"></div>
+              <div class="dropdown-no-results" style="display:none;">No results found</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reports-search-toolbar" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <div class="stat-card search-card" style="flex:1;min-width:240px;padding:0.65rem 1rem;display:flex;align-items:center;gap:0.65rem;border-radius:14px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="candidate-report-search" aria-label="Search candidates for report" placeholder="Search candidates, roles, campaigns or recommendations..." style="flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text-primary);font-family:var(--font-base);font-size:0.85rem;" />
+            <button type="button" id="candidate-report-search-clear" aria-label="Clear candidate search" style="display:none;padding:2px 4px;border:0;background:transparent;color:var(--text-muted);font-size:1.15rem;line-height:1;cursor:pointer;">&times;</button>
+          </div>
+          <span id="candidate-report-search-results" aria-live="polite" style="color:var(--text-muted);font-size:0.75rem;white-space:nowrap;"></span>
+        </div>
+
+        <!-- Candidate Selection Table -->
+        <div class="table-wrapper" style="margin-bottom:1.5rem;">
+          <table class="candidate-selection-table">
+            <thead>
+              <tr>
+                <th style="width:30px;"><input type="checkbox" id="select-all-candidates" /></th>
+                <th>Candidate</th>
+                <th>Campaign</th>
+                <th>Score</th>
+                <th>Recommendation</th>
+              </tr>
+            </thead>
+            <tbody id="candidate-selection-list"></tbody>
+          </table>
+        </div>
+
+        <!-- Show More for Candidates -->
+        <div class="show-more-wrapper">
+          <button class="btn btn-secondary" id="show-more-candidates-btn" style="min-width:160px;">
+            Show More Candidates
+            <span id="show-more-candidates-count" style="margin-left:0.5rem;font-weight:400;opacity:0.7;"></span>
+          </button>
+        </div>
+
+        <!-- Report Options -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;margin-top:1.5rem;">
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;color:var(--text-secondary);">Branding</label>
+            <div class="custom-dropdown" id="report-branding">
+              <button class="dropdown-btn" type="button">
+                <span class="selected-text">Standard (ACERecruit)</span>
+                <span class="arrow"><svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </button>
+              <div class="dropdown-menu">
+                <div class="dropdown-search"><input type="text" class="dropdown-search-input" placeholder="" /></div>
+                <div class="dropdown-items">
+                  <div class="dropdown-item active" data-value="standard">Standard (ACERecruit) <span class="check">✓</span></div>
+                  <div class="dropdown-item" data-value="client">Client Branding <span class="check">✓</span></div>
+                  <div class="dropdown-item" data-value="minimal">Minimal <span class="check">✓</span></div>
+                </div>
+                <div class="dropdown-no-results" style="display:none;">No results found</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label style="display:block;font-weight:600;margin-bottom:0.4rem;font-size:0.9rem;color:var(--text-secondary);">Report Format</label>
+            <div class="custom-dropdown" id="report-format">
+              <button class="dropdown-btn" type="button">
+                <span class="selected-text">PDF</span>
+                <span class="arrow"><svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              </button>
+              <div class="dropdown-menu">
+                <div class="dropdown-search"><input type="text" class="dropdown-search-input" placeholder="" /></div>
+                <div class="dropdown-items">
+                  <div class="dropdown-item active" data-value="pdf">PDF <span class="check">✓</span></div>
+                  <div class="dropdown-item" data-value="docx">DOCX <span class="check">✓</span></div>
+                  <div class="dropdown-item" data-value="html">HTML <span class="check">✓</span></div>
+                </div>
+                <div class="dropdown-no-results" style="display:none;">No results found</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkbox Options -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+            <input type="checkbox" id="include-cv" checked />
+            <span style="font-weight:500;">Include CV</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+            <input type="checkbox" id="include-cover-letter" />
+            <span style="font-weight:500;">Include Cover Letter</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+            <input type="checkbox" id="include-notes" checked />
+            <span style="font-weight:500;">Include Recruiter Notes</span>
+          </label>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+          <button class="btn" id="generate-report-btn">Generate Report</button>
+          <button class="btn btn-secondary" id="preview-report-btn">Preview</button>
+          <button class="btn btn-secondary" id="clear-selection-btn">Clear Selection</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== GENERATED REPORTS TABLE ===== -->
+    <section class="reports-section">
+      <h2 class="section-title">Generated Reports</h2>
+      <div class="reports-search-toolbar" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <div class="stat-card search-card" style="flex:1;min-width:240px;padding:0.65rem 1rem;display:flex;align-items:center;gap:0.65rem;border-radius:14px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="search" id="report-search" aria-label="Search generated reports" placeholder="Search reports, candidates, campaigns or status..." style="flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text-primary);font-family:var(--font-base);font-size:0.85rem;" />
+          <button type="button" id="report-search-clear" aria-label="Clear report search" style="display:none;padding:2px 4px;border:0;background:transparent;color:var(--text-muted);font-size:1.15rem;line-height:1;cursor:pointer;">&times;</button>
+        </div>
+        <span id="report-search-results" aria-live="polite" style="color:var(--text-muted);font-size:0.75rem;white-space:nowrap;"></span>
+      </div>
+      <div class="table-wrapper">
+        <table class="reports-table">
+          <thead>
+            <tr>
+              <th>Report Name</th>
+              <th>Candidate</th>
+              <th>Campaign</th>
+              <th>Date Generated</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reports-list"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="loader-container" class="loader" style="display:none;"></div>
+  </main>
+
+  <!-- ===== LOGOUT MODAL (OPTIMIZED – NO BLUR, NO LAG) ===== -->
+  <div class="report-action-modal" id="report-view-modal" hidden>
+    <div class="report-action-dialog" role="dialog" aria-modal="true" aria-labelledby="report-view-title">
+      <header class="report-action-header"><div><span class="report-modal-eyebrow">Client submission</span><h2 id="report-view-title">Report Preview</h2></div><button type="button" class="report-modal-close" data-close-report-modal aria-label="Close report preview">&times;</button></header>
+      <div class="report-preview-body">
+        <div class="report-preview-banner"><strong data-view-report-name></strong><span data-view-report-status></span></div>
+        <dl class="report-preview-grid"><div><dt>Candidate</dt><dd><a data-view-candidate-link></a></dd></div><div><dt>Campaign</dt><dd data-view-campaign></dd></div><div><dt>Date Generated</dt><dd data-view-date></dd></div><div><dt>Format</dt><dd data-view-format></dd></div></dl>
+        <section class="report-preview-summary"><h3>Executive Summary</h3><p data-view-summary></p></section>
+      </div>
+      <footer class="report-action-footer"><button type="button" class="btn btn-secondary" data-close-report-modal>Close</button><button type="button" class="btn" data-view-share>Share Report</button></footer>
+    </div>
+  </div>
+
+  <div class="report-action-modal" id="report-share-modal" hidden>
+    <div class="report-action-dialog report-share-dialog" role="dialog" aria-modal="true" aria-labelledby="report-share-title">
+      <header class="report-action-header"><div><span class="report-modal-eyebrow">Secure client delivery</span><h2 id="report-share-title">Share Report</h2></div><button type="button" class="report-modal-close" data-close-report-modal aria-label="Close share modal">&times;</button></header>
+      <form id="report-share-form" class="report-share-form">
+        <p class="report-share-name" data-share-report-name></p>
+        <label for="report-share-email">Recipient Email</label><input type="email" id="report-share-email" required placeholder="client@company.com" />
+        <label for="report-share-message">Message <span>(optional)</span></label><textarea id="report-share-message" rows="4" placeholder="Add a short note for the client..."></textarea>
+        <label for="report-share-link">Share Link</label><div class="report-share-link-row"><input type="text" id="report-share-link" readonly /><button type="button" class="btn btn-secondary" id="copy-report-link">Copy</button></div>
+        <footer class="report-action-footer"><button type="button" class="btn btn-secondary" data-close-report-modal>Cancel</button><button type="submit" class="btn">Send Report</button></footer>
+      </form>
+    </div>
+  </div>
+
+    <div id="logoutModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center;padding:2rem;transition:opacity 0.3s ease;opacity:0;">
+      <div style="background:var(--bg-surface-solid, #FFFFFF);border-radius:var(--radius-card, 20px);max-width:400px;width:100%;box-shadow:var(--shadow-card, 0 8px 32px rgba(0,0,0,0.12));border:1px solid var(--border-light, rgba(61,44,42,0.08));padding:2.5rem;text-align:center;transform:scale(0.95);transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;opacity:0;will-change:transform, opacity;">
+        
+        <div style="display:flex;justify-content:center;margin-bottom:1rem;">
+          <div style="width:56px;height:56px;border-radius:50%;background:var(--clr-sky-aqua, #6BC6CC);display:flex;align-items:center;justify-content:center;opacity:0.9;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </div>
+        </div>
+
+        <h3 style="margin-bottom:0.5rem;color:var(--text-primary, #1A1210);font-size:1.2rem;font-weight:600;" data-i18n="confirm_logout">Confirm Logout</h3>
+        <p style="color:var(--text-secondary, #3D2C2A);margin-bottom:1.5rem;font-size:0.95rem;opacity:0.8;" data-i18n="confirm_logout_message">Are you sure you want to logout?</p>
+        
+        <div style="display:flex;gap:0.75rem;justify-content:center;">
+          <button class="btn" id="confirmLogoutBtn" style="background:var(--clr-charcoal, #2C1F1D);color:white;padding:0.6rem 2rem;min-width:120px;" data-i18n="yes_logout">Yes, Logout</button>
+          <button class="btn btn-secondary" id="cancelLogoutBtn" style="padding:0.6rem 2rem;min-width:120px;" data-i18n="cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  <!-- ===== SCRIPTS ===== -->
+  <script src="../Assets/js/cursor.js"></script>
+  <script src="../Assets/js/sidebar-active.js"></script>
+
+  <script type="module">
+    import { initDarkMode, initDropdowns, initLogoutModal } from '../Assets/js/ui.js';
+    import { initUserMenu } from '../Assets/js/user-menu.js';
+    import { showToast } from '../Assets/js/toast.js';
+    import initReports from './reports.js';
+
+    initDarkMode();
+    initDropdowns(document);
+    initLogoutModal();
+    initUserMenu();
+
+    (async function() {
+      try {
+        await initReports();
+      } catch (error) {
+        console.error('Reports error:', error);
+        showToast('Error loading reports', 'error');
+        document.getElementById('reports-list').innerHTML =
+          '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-muted);">Error loading reports</td></tr>';
+        document.getElementById('candidate-selection-list').innerHTML =
+          '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--text-muted);">Error loading candidates</td></tr>';
+      }
+    })();
+  </script>
+</body>
+<script type="module" src="../Assets/js/i18n-init.js"></script>
+</html>
