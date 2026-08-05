@@ -8,7 +8,7 @@ import {
   getAssessmentByApplicantAndCampaign,
   getCampaignById,
   getRecommendationBadgeClass
-} from '/Assets/js/dataService.js';
+} from '../Assets/js/dataService.js';
 import { showToast } from '../Assets/js/toast.js';
 
 let currentApplicant = null;
@@ -558,14 +558,14 @@ function setupActionButtons(applicant) {
   const compareBtn = document.getElementById('compare-btn');
   if (compareBtn) {
     compareBtn.addEventListener('click', () => {
-      window.location.href = `https://b3ngz.github.io/ACERecruitmentAIHelper/Rankings/rankings.html?compare=${applicant.id}`;
+      window.location.href = window.appUrl?.(`/Rankings/rankings.html?compare=${applicant.id}`) || `../Rankings/rankings.html?compare=${applicant.id}`;
     });
   }
 
   const compareOthersBtn = document.getElementById('compare-candidates-btn');
   if (compareOthersBtn) {
     compareOthersBtn.addEventListener('click', () => {
-      window.location.href = `https://b3ngz.github.io/ACERecruitmentAIHelper/Rankings/rankings.html`;
+      window.location.href = window.appUrl?.('/Rankings/rankings.html') || '../Rankings/rankings.html';
     });
   }
 }
