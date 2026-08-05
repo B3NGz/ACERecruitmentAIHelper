@@ -8,7 +8,7 @@
 const CONFIG = {
   GOOGLE_CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
   PROTECT_PAGES: false,
-  REDIRECT_URL: '/Dashboard/dashboard.html',
+  REDIRECT_URL: '../Dashboard/dashboard.html',
 };
 
 const IS_LOGIN_PAGE = window.location.pathname.includes('/Login/');
@@ -51,7 +51,7 @@ function logout() {
     } catch (e) {}
   }
   clearUser();
-  window.location.href = '/Login/login.html';
+  window.location.href = window.appUrl?.('/Login/login.html') || '../Login/login.html';
 }
 
 // ─── RENDER HEADER WELCOME ────────────────────────────────────
@@ -202,7 +202,7 @@ function protectPage() {
 
   if (IS_LOGIN_PAGE) {
     if (CONFIG.PROTECT_PAGES && user) {
-      window.location.href = '/Dashboard/dashboard.html';
+      window.location.href = window.appUrl?.('/Dashboard/dashboard.html') || '../Dashboard/dashboard.html';
       return;
     }
     return;
@@ -228,7 +228,7 @@ function protectPage() {
   }
 
   if (!user) {
-    window.location.href = '/Login/login.html';
+    window.location.href = window.appUrl?.('/Login/login.html') || '../Login/login.html';
     return;
   }
 
