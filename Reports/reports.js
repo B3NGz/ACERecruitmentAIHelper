@@ -8,8 +8,8 @@ import {
   getRecommendationBadgeClass,
   getStatusBadgeClass,
   sameId
-} from 'https://b3ngz.github.io/Assets/js/dataService.js';
-import { showToast } from 'https://b3ngz.github.io/Assets/js/toast.js';
+} from '../Assets/js/dataService.js';
+import { showToast } from '../Assets/js/toast.js';
 
 let allCandidates = [];
 let allReports = [];
@@ -72,7 +72,7 @@ function renderCandidates() {
     return `
       <tr>
         <td><input type="checkbox" data-applicant-id="${a.id}" /></td>
-        <td><a href="https://b3ngz.github.io/Applicants/applicant-details.html?id=${a.id}" style="color:var(--link-color);text-decoration:none;">${a.fullName}</a></td>
+        <td><a href="/Applicants/applicant-details.html?id=${a.id}" style="color:var(--link-color);text-decoration:none;">${a.fullName}</a></td>
         <td>${campaign?.jobTitle || 'Unknown'}</td>
         <td>${score}</td>
         <td><span class="badge ${recClass} recommendation-preview">${rec}</span></td>
@@ -152,7 +152,7 @@ function renderReports() {
     return `
       <tr>
         <td>${r.name}</td>
-        <td><a href="https://b3ngz.github.io/Applicants/applicant-details.html?id=${r.candidateId}" style="color:var(--link-color);text-decoration:none;">${r.candidateName}</a></td>
+        <td><a href="/Applicants/applicant-details.html?id=${r.candidateId}" style="color:var(--link-color);text-decoration:none;">${r.candidateName}</a></td>
         <td>${r.campaignName}</td>
         <td>${displayDate}</td>
         <td><span class="badge ${statusClass}">${r.status}</span></td>
@@ -352,7 +352,7 @@ function setupReportActions() {
     activeReportId = report.id;
     shareModal.querySelector('[data-share-report-name]').textContent = report.name || 'Client Report';
     const link = document.getElementById('report-share-link');
-    if (link) link.value = `${location.origin}https://b3ngz.github.io/Reports/client-reports.html?report=${encodeURIComponent(report.id)}`;
+    if (link) link.value = new URL(window.appUrl?.('/Reports/client-reports.html') || '../Reports/client-reports.html', location.href).href + `?report=${encodeURIComponent(report.id)}`;
     document.getElementById('report-share-email').value = '';
     document.getElementById('report-share-message').value = '';
     closeModal(viewModal);
@@ -368,7 +368,7 @@ function setupReportActions() {
     viewModal.querySelector('[data-view-report-status]').textContent = report.status || 'Unknown';
     const candidateLink = viewModal.querySelector('[data-view-candidate-link]');
     candidateLink.textContent = report.candidateName || applicant?.fullName || 'Unknown';
-    candidateLink.href = `/Applicants/applicant-details.html?id=${encodeURIComponent(report.candidateId)}`;
+    candidateLink.href = (window.appUrl?.('/Applicants/applicant-details.html') || '../Applicants/applicant-details.html') + `?id=${encodeURIComponent(report.candidateId)}`;
     viewModal.querySelector('[data-view-campaign]').textContent = report.campaignName || 'Unknown';
     const date = report.dateGenerated || report.createdAt;
     viewModal.querySelector('[data-view-date]').textContent = date ? new Date(date).toLocaleDateString() : 'N/A';
