@@ -20,7 +20,7 @@ function redirectToLogin() {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
 
-  window.location.href = '/Login/login.html';
+  window.location.href = window.appUrl?.('/Login/login.html') || '../Login/login.html';
 }
 
 async function apiFetch(endpoint, options = {}) {
