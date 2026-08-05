@@ -440,7 +440,7 @@ export function initLogoutModal() {
     newConfirm.addEventListener('click', () => {
       sessionStorage.removeItem('sidebarHover');
       localStorage.removeItem('theme');
-      window.location.href = '/Login/login.html';
+      window.location.href = window.appUrl?.('/Login/login.html') || '../Login/login.html';
     });
   }
 
