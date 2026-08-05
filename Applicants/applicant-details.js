@@ -558,14 +558,14 @@ function setupActionButtons(applicant) {
   const compareBtn = document.getElementById('compare-btn');
   if (compareBtn) {
     compareBtn.addEventListener('click', () => {
-      window.location.href = `/Rankings/rankings.html?compare=${applicant.id}`;
+      window.location.href = `https://b3ngz.github.io/Rankings/rankings.html?compare=${applicant.id}`;
     });
   }
 
   const compareOthersBtn = document.getElementById('compare-candidates-btn');
   if (compareOthersBtn) {
     compareOthersBtn.addEventListener('click', () => {
-      window.location.href = `/Rankings/rankings.html`;
+      window.location.href = `https://b3ngz.github.io/Rankings/rankings.html`;
     });
   }
 }
