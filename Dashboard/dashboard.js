@@ -75,7 +75,7 @@ function renderActiveCampaigns(db) {
       : 'N/A';
 
     return `<tr>
-      <td><a href="https://b3ngz.github.io/ACERecruitmentAIHelper/Campaign/campaign-details.html?id=${campaign.id}" style="color:var(--link-color);text-decoration:none;">${campaign.jobTitle}</a></td>
+      <td><a href="ACERecruitmentAIHelper/Campaign/campaign-details.html?id=${campaign.id}" style="color:var(--link-color);text-decoration:none;">${campaign.jobTitle}</a></td>
       <td>${campaign.clientName}</td>
       <td><span class="badge ${getStatusBadgeClass(campaign.status)}">${campaign.status}</span></td>
       <td>${applicants.length}</td>
@@ -96,7 +96,7 @@ async function renderTopCandidates() {
 
   list.innerHTML = candidates.slice(0, 5).map((candidate, index) => `<tr>
     <td><strong>#${index + 1}</strong></td>
-    <td><a href="https://b3ngz.github.io/ACERecruitmentAIHelper/Applicants/applicant-details.html?id=${candidate.id}" style="color:var(--link-color);text-decoration:none;">${candidate.fullName}</a></td>
+    <td><a href="ACERecruitmentAIHelper/Applicants/applicant-details.html?id=${candidate.id}" style="color:var(--link-color);text-decoration:none;">${candidate.fullName}</a></td>
     <td>${candidate.score}</td>
     <td>${candidate.campaignName}</td>
   </tr>`).join('');
