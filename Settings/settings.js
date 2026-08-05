@@ -2,10 +2,10 @@
 // SETTINGS – Uses shared i18n module
 // ============================================================
 
-import { loadDatabase } from '../Assets/js/dataService.js';
-import { showToast } from '../Assets/js/toast.js';
-import { applyLanguage, t } from '../Assets/js/i18n.js';
-import { showLogoutModal } from '../Assets/js/ui.js';
+import { loadDatabase } from 'https://b3ngz.github.io/Assets/js/dataService.js';
+import { showToast } from 'https://b3ngz.github.io/Assets/js/toast.js';
+import { applyLanguage, t } from 'https://b3ngz.github.io/Assets/js/i18n.js';
+import { showLogoutModal } from 'https://b3ngz.github.io/Assets/js/ui.js';
 
 let db = null;
 let currentUser = null;
