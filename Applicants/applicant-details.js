@@ -8,7 +8,7 @@ import {
   getAssessmentByApplicantAndCampaign,
   getCampaignById,
   getRecommendationBadgeClass
-} from 'https://b3ngz.github.io/ACERecruitmentAIHelper/Assets/js/dataService.js';
+} from '/Assets/js/dataService.js';
 import { showToast } from '../Assets/js/toast.js';
 
 let currentApplicant = null;
