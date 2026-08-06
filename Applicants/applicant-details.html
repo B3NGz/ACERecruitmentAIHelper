@@ -154,6 +154,10 @@
           <div><span style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);font-weight:600;">Campaign</span><span id="applicant-campaign" style="font-weight:500;font-size:1rem;"></span></div>
           <div><span style="display:block;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);font-weight:600;">LinkedIn</span><a id="applicant-linkedin" href="#" target="_blank" style="font-weight:500;font-size:1rem;color:var(--clr-maya-blue);word-break:break-all;">View Profile</a></div>
         </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border-light);">
+          <div><strong style="display:block;color:var(--text-primary);font-size:0.9rem;">Alternative campaign fit</strong><span style="color:var(--text-muted);font-size:0.78rem;">Check whether this applicant may suit another open campaign.</span></div>
+          <button class="btn btn-secondary" id="find-matching-campaigns" type="button">Find Matching Campaigns</button>
+        </div>
       </div>
     </section>
 
@@ -215,8 +219,39 @@
       <ul id="applicant-missing" style="list-style:none;padding:0;margin:0;"></ul>
     </section>
 
+    <section style="margin-bottom:2rem;" aria-labelledby="hr-interview-notes-title">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+        <div><h2 class="section-title" id="hr-interview-notes-title" style="margin-bottom:0.25rem;">HR Comments &amp; Interview Assessment</h2><p style="margin:0;color:var(--text-muted);font-size:0.8rem;">Capture interview observations and a separate HR score.</p></div>
+        <span class="badge badge-draft">Local draft — not synced</span>
+      </div>
+      <div class="stat-card" style="text-align:left;padding:1.5rem;">
+        <h3 style="margin:0 0 0.35rem;color:var(--text-primary);font-size:1rem;">HR Interview Assessment</h3>
+        <p style="margin:0 0 1rem;color:var(--text-muted);font-size:0.78rem;">Save the interviewer’s assessment notes, score, and comment together.</p>
+        <label for="hr-notes" style="display:block;margin-bottom:0.4rem;color:var(--text-secondary);font-size:0.78rem;font-weight:650;">Assessment notes</label>
+        <textarea id="hr-notes" rows="4" maxlength="1500" placeholder="Summarize communication, role fit, and interview evidence..." style="width:100%;resize:vertical;"></textarea>
+        <label for="hr-score" style="display:block;margin:0.9rem 0 0.4rem;color:var(--text-secondary);font-size:0.78rem;font-weight:650;">HR score (0–100)</label>
+        <input id="hr-score" type="number" min="0" max="100" inputmode="numeric" placeholder="e.g. 82" style="width:100%;" />
+        <label for="hr-comments" style="display:block;margin:0.9rem 0 0.4rem;color:var(--text-secondary);font-size:0.78rem;font-weight:650;">HR comment</label>
+        <textarea id="hr-comments" rows="3" maxlength="1000" placeholder="Add the interviewer’s final comment..." style="width:100%;resize:vertical;"></textarea>
+        <div style="display:flex;justify-content:flex-end;margin-top:0.75rem;"><button class="btn" id="submit-hr-assessment" type="button">Save Assessment</button></div>
+        <div id="saved-hr-assessment" style="margin-top:1rem;" aria-live="polite"></div>
+      </div>
+    </section>
+
     <div id="loader-container" class="loader" style="display:none;"></div>
   </main>
+
+  <div id="campaign-match-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.58);z-index:10000;align-items:center;justify-content:center;padding:1rem;">
+    <div role="dialog" aria-modal="true" aria-labelledby="campaign-match-title" style="width:min(620px,100%);max-height:90vh;overflow:auto;padding:1.5rem;border:1px solid var(--border-light);border-radius:var(--radius-card);background:var(--bg-surface-solid);box-shadow:var(--shadow-dropdown);">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem;">
+        <div><span style="color:var(--text-muted);font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">Alternative campaign fit</span><h2 id="campaign-match-title" style="margin:0.25rem 0 0;color:var(--text-primary);font-size:1.15rem;">Find Matching Campaigns</h2></div>
+        <button id="close-campaign-match-modal" type="button" aria-label="Close matching campaigns" style="width:34px;height:34px;border:1px solid var(--border-light);border-radius:10px;background:var(--bg-glass);color:var(--text-primary);font-size:1.25rem;cursor:pointer;">&times;</button>
+      </div>
+      <p style="margin:0 0 1rem;color:var(--text-secondary);font-size:0.86rem;line-height:1.55;">Campaign matches for <strong id="campaign-match-applicant"></strong> will appear here after the matching API is connected.</p>
+      <div id="campaign-match-results" style="padding:1.25rem;border:1px dashed var(--border-light);border-radius:12px;background:var(--bg-body);color:var(--text-muted);font-size:0.84rem;text-align:center;">Matching service is awaiting backend integration.</div>
+      <div style="display:flex;justify-content:flex-end;margin-top:1.25rem;"><button class="btn btn-secondary" id="close-campaign-match-footer" type="button">Close</button></div>
+    </div>
+  </div>
 
   <!-- ===== CV MODAL ===== -->
   <div id="cv-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;padding:2rem;">
