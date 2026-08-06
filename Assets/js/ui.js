@@ -87,14 +87,14 @@ export function initPageHierarchy(root = document) {
 }
 
 const EMPTY_ACTIONS = {
-  'campaign-list': { label: 'Create campaign', href: '/Campaign/create-campaign.html' },
-  'applicant-list': { label: 'View campaigns', href: '/Campaign/campaign.html' },
-  'assessments-list': { label: 'View applicants', href: '/Applicants/applicants.html' },
-  'interviews-list': { label: 'View applicants', href: '/Applicants/applicants.html' },
-  'rankings-list': { label: 'View applicants', href: '/Applicants/applicants.html' },
-  'reports-list': { label: 'View applicants', href: '/Applicants/applicants.html' },
-  'candidate-selection-list': { label: 'View applicants', href: '/Applicants/applicants.html' },
-  'top-candidates': { label: 'View all applicants', href: '/Applicants/applicants.html' }
+  'campaign-list': { label: 'Create campaign', href: '../Campaign/create-campaign.html' },
+  'applicant-list': { label: 'View campaigns', href: '../Campaign/campaign.html' },
+  'assessments-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'interviews-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'rankings-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'reports-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'candidate-selection-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'top-candidates': { label: 'View all applicants', href: '../Applicants/applicants.html' }
 };
 
 export function enhanceEmptyStates(root = document) {
@@ -440,7 +440,7 @@ export function initLogoutModal() {
     newConfirm.addEventListener('click', () => {
       sessionStorage.removeItem('sidebarHover');
       localStorage.removeItem('theme');
-      window.location.href = window.appUrl?.('/Login/login.html') || '../Login/login.html';
+      window.location.href = '../Login/login.html';
     });
   }
 
