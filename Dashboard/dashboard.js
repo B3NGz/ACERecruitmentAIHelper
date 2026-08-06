@@ -11,7 +11,7 @@ import {
 
 function requireAuthentication() {
   if (!localStorage.getItem('token')) {
-    window.location.href = window.appUrl?.('/Login/login.html') || '../Login/login.html';
+    window.location.href = '../Login/login.html';
     return false;
   }
   return true;
@@ -75,7 +75,7 @@ function renderActiveCampaigns(db) {
       : 'N/A';
 
     return `<tr>
-      <td><a href="/Campaign/campaign-details.html?id=${campaign.id}" style="color:var(--link-color);text-decoration:none;">${campaign.jobTitle}</a></td>
+      <td><a href="../Campaign/campaign-details.html?id=${campaign.id}" style="color:var(--link-color);text-decoration:none;">${campaign.jobTitle}</a></td>
       <td>${campaign.clientName}</td>
       <td><span class="badge ${getStatusBadgeClass(campaign.status)}">${campaign.status}</span></td>
       <td>${applicants.length}</td>
@@ -96,7 +96,7 @@ async function renderTopCandidates() {
 
   list.innerHTML = candidates.slice(0, 5).map((candidate, index) => `<tr>
     <td><strong>#${index + 1}</strong></td>
-    <td><a href="/Applicants/applicant-details.html?id=${candidate.id}" style="color:var(--link-color);text-decoration:none;">${candidate.fullName}</a></td>
+    <td><a href="../Applicants/applicant-details.html?id=${candidate.id}" style="color:var(--link-color);text-decoration:none;">${candidate.fullName}</a></td>
     <td>${candidate.score}</td>
     <td>${candidate.campaignName}</td>
   </tr>`).join('');
