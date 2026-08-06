@@ -14,7 +14,8 @@ const NOT_ASSESSED_FILTER = '__not_assessed__';
 function recommendationCategoryFromValue(value) {
   const recommendation = String(value || '').trim().toLowerCase();
   if (!recommendation || /^(not assessed|n\/?a)$/i.test(recommendation)) return { value: NOT_ASSESSED_FILTER, label: 'Not Assessed', rank: 0 };
-  if (recommendation.includes('excellent') || recommendation.includes('exceptional') || recommendation.includes('highly recommended')) return { value: 'excellent', label: 'Excellent', rank: 5 };
+  if (recommendation.includes('excellent') || recommendation.includes('exceptional') || recommendation.includes('highly recommended')) return { value: 'excellent', label: 'Excellent', rank: 6 };
+  if (recommendation.includes('qualified')) return { value: 'qualified', label: 'Qualified', rank: 5 };
   if (recommendation.includes('conditional') || recommendation.includes('worth interviewing') || recommendation.includes('worth interview')) return { value: 'conditional', label: 'Conditional', rank: 3 };
   if (recommendation.includes('strong')) return { value: 'strong', label: 'Strong', rank: 4 };
   if (recommendation.includes('possible')) return { value: 'possible', label: 'Possible', rank: 2 };
@@ -135,13 +136,21 @@ function updateStats() {
   const assessments = allAssessments;
 
   const totalEl = document.getElementById('total-assessments');
-  const excellentEl = document.getElementById('excellent-match');
+  const qualifiedEl = document.getElementById('qualified-match');
   const strongEl = document.getElementById('strong-match');
   const avgEl = document.getElementById('avg-assessment-score');
 
   if (totalEl) totalEl.textContent = assessments.length;
-  if (excellentEl) excellentEl.textContent = assessments.filter(a => a.recommendation === 'Excellent Match').length;
-  if (strongEl) strongEl.textContent = assessments.filter(a => a.recommendation === 'Strong Match').length;
+  if (qualifiedEl) {
+    qualifiedEl.textContent = assessments.filter(a =>
+      recommendationCategoryFromValue(a.recommendation).value === 'qualified'
+    ).length;
+  }
+  if (strongEl) {
+    strongEl.textContent = assessments.filter(a =>
+      recommendationCategoryFromValue(a.recommendation).value === 'strong'
+    ).length;
+  }
 
   const avg = assessments.length > 0
     ? Math.round(assessments.reduce((sum, a) => sum + a.overallScore, 0) / assessments.length)
