@@ -22,6 +22,15 @@ function normalizeExternalUrl(value) {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
 // ─── LOCALSTORAGE HELPERS ────────────────────────────────────────
 function getHrData(applicantId) {
   try {
@@ -245,7 +254,7 @@ function renderHrComments(applicantId) {
   }
   container.innerHTML = hrData.comments.map((comment, index) =>
     `<div style="background:var(--bg-glass);padding:0.5rem 0.75rem;border-radius:8px;margin-bottom:0.5rem;border-left:3px solid var(--clr-sky-aqua);font-size:0.9rem;">
-      <span>${comment}</span>
+      <span>${escapeHtml(comment)}</span>
       <button class="delete-hr-comment" data-index="${index}" style="background:none;border:none;color:var(--text-muted);cursor:pointer;float:right;font-size:1.1rem;">&times;</button>
     </div>`
   ).join('');
@@ -279,7 +288,7 @@ function renderHrAssessment(applicantId) {
         <span style="font-weight:600;">Score: <span style="color:var(--clr-maya-blue);font-size:1.2rem;">${a.score}</span></span>
         <span style="font-size:0.8rem;color:var(--text-muted);">${a.date || 'N/A'}</span>
       </div>
-      ${a.notes ? `<p style="margin-top:0.5rem;font-size:0.9rem;color:var(--text-secondary);">${a.notes}</p>` : ''}
+      ${a.notes ? `<p style="margin-top:0.5rem;font-size:0.9rem;color:var(--text-secondary);">${escapeHtml(a.notes)}</p>` : ''}
       <button class="delete-hr-assessment" style="background:none;border:none;color:var(--text-muted);cursor:pointer;margin-top:0.25rem;font-size:0.85rem;padding:0;">✕ Remove Assessment</button>
     </div>
   `;
@@ -352,6 +361,36 @@ function setupHrAssessment(applicantId) {
 }
 
 // ─── SETUP CV MODAL ─────────────────────────────────────────────
+function setupCampaignMatching(applicant) {
+  const trigger = document.getElementById('find-matching-campaigns');
+  const modal = document.getElementById('campaign-match-modal');
+  const applicantName = document.getElementById('campaign-match-applicant');
+  const closeButtons = document.querySelectorAll('#close-campaign-match-modal, #close-campaign-match-footer');
+  if (!trigger || !modal) return;
+
+  if (applicantName) applicantName.textContent = applicant.fullName || 'this applicant';
+
+  const close = () => {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  };
+  const open = () => {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('close-campaign-match-modal')?.focus();
+    document.dispatchEvent(new CustomEvent('applicantCampaignMatchRequested', {
+      detail: { applicantId: applicant.id, campaignId: applicant.campaignId }
+    }));
+  };
+
+  trigger.addEventListener('click', open);
+  closeButtons.forEach(button => button.addEventListener('click', close));
+  modal.addEventListener('click', event => { if (event.target === modal) close(); });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && modal.style.display === 'flex') close();
+  });
+}
+
 function setupCVModal(applicant) {
   const modal = document.getElementById('cv-modal');
   const modalName = document.getElementById('modal-cv-name');
@@ -607,6 +646,11 @@ export default async function initApplicantDetails() {
 
     populateApplicantInfo(applicant, campaign);
     populateAssessment(assessment, applicant);
+    setupCampaignMatching(applicant);
+    setupHrComments(id);
+    setupHrAssessment(id);
+    renderHrComments(id);
+    renderHrAssessment(id);
 
     // ─── HR Features ─────────────────────────────────────────────
 
