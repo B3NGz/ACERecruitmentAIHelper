@@ -4,9 +4,9 @@
 
 import {
   loadDatabase,
-  getCampaignNames,
   getRankedApplicants,
-  getRecommendationBadgeClass
+  getRecommendationBadgeClass,
+  sameId
 } from '../Assets/js/dataService.js';
 import { showToast } from '../Assets/js/toast.js';
 
@@ -14,6 +14,15 @@ let allRankedData = [];
 let visibleCount = 5;
 const BATCH_SIZE = 5;
 let db = null;
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
 
 // ─── RENDER RANKINGS ─────────────────────────────────────────────
 function renderRankings(ranked) {
@@ -95,27 +104,37 @@ function updateCompareButton() {
 }
 
 // ─── UPDATE TITLE ────────────────────────────────────────────────
-function updateTitle(count) {
+function updateTitle(count, campaignName = '') {
   const title = document.getElementById('rankings-title');
   if (title) {
-    title.textContent = `Rankings (${count} candidates)`;
+    title.textContent = campaignName ? `${campaignName} Rankings (${count} candidates)` : `Rankings (${count} candidates)`;
   }
 }
 
 // ─── LOAD RANKINGS ───────────────────────────────────────────────
 async function loadRankings(campaignId) {
   try {
-    const ranked = await getRankedApplicants(campaignId);
+    if (!campaignId) {
+      allRankedData = [];
+      renderRankings([]);
+      updateTitle(0);
+      return;
+    }
+    const ranked = (await getRankedApplicants(campaignId)).filter(candidate =>
+      candidate.assessment && Number.isFinite(Number(candidate.assessment.overallScore))
+    );
+    const campaign = (db?.campaigns || []).find(item => sameId(item.id, campaignId));
+    const campaignName = campaign?.jobTitle || '';
     allRankedData = ranked;
     visibleCount = 5;
 
     if (ranked.length === 0) {
       renderRankings([]);
-      updateTitle(0);
+      updateTitle(0, campaignName);
       return;
     }
 
-    updateTitle(ranked.length);
+    updateTitle(ranked.length, campaignName);
     renderRankings(ranked);
 
     console.log(`✅ Rankings loaded: ${ranked.length} candidates`);
@@ -135,27 +154,28 @@ async function populateCampaignDropdown() {
   const campaignItems = campaignDropdown.querySelector('.dropdown-items');
   if (!campaignItems) return;
 
-  const campaignNames = await getCampaignNames();
-  campaignItems.innerHTML = `
-    <div class="dropdown-item active" data-value="all">All Campaigns <span class="check">✓</span></div>
-    ${campaignNames.map(c =>
-      `<div class="dropdown-item" data-value="${c.id}">${c.name} (${c.client}) <span class="check">✓</span></div>`
-    ).join('')}
-  `;
+  const campaigns = (db?.campaigns || []).filter(campaign =>
+    (db?.assessments || []).some(assessment => sameId(assessment.campaignId, campaign.id))
+  );
+  if (!campaigns.length) {
+    campaignDropdown.querySelector('.selected-text').textContent = 'No campaigns with rankings';
+    campaignDropdown.querySelector('.dropdown-btn')?.setAttribute('disabled', '');
+    campaignItems.innerHTML = '';
+    return '';
+  }
+
+  const selected = campaigns.find(campaign => String(campaign.status || '').toLowerCase() === 'active') || campaigns[0];
+  campaignDropdown.dataset.value = String(selected.id);
+  campaignDropdown.querySelector('.selected-text').textContent = selected.jobTitle || 'Untitled campaign';
+  campaignItems.innerHTML = campaigns.map(campaign => {
+    const count = (db.assessments || []).filter(assessment => sameId(assessment.campaignId, campaign.id)).length;
+    const active = sameId(campaign.id, selected.id) ? ' active' : '';
+    return `<div class="dropdown-item${active}" data-value="${escapeHtml(campaign.id)}">${escapeHtml(campaign.jobTitle || 'Untitled campaign')} <small>${count}</small></div>`;
+  }).join('');
+  return selected.id;
 }
 
 // ─── SETUP LOAD RANKINGS BUTTON ────────────────────────────────
-function setupLoadButton() {
-  const btn = document.getElementById('load-rankings-btn');
-  if (!btn) return;
-
-  btn.addEventListener('click', () => {
-    const campaignDropdown = document.getElementById('campaign-filter');
-    const campaignId = campaignDropdown?.dataset?.value || 'all';
-    loadRankings(campaignId);
-  });
-}
-
 // ─── SETUP COMPARE SELECTED ─────────────────────────────────────
 function setupCompareSelected() {
   const btn = document.getElementById('compare-selected-btn');
@@ -205,7 +225,8 @@ function setupCampaignDropdownChange() {
   if (!campaignDropdown) return;
 
   campaignDropdown.addEventListener('dropdownChange', () => {
-    const campaignId = campaignDropdown.dataset.value || 'all';
+    const campaignId = campaignDropdown.dataset.value || '';
+    if (!campaignId) return;
     loadRankings(campaignId);
   });
 }
@@ -237,17 +258,16 @@ export default async function initRankings() {
     }
 
     // Populate campaign dropdown
-    await populateCampaignDropdown();
+    const initialCampaignId = await populateCampaignDropdown();
 
     // Setup UI
-    setupLoadButton();
     setupCompareSelected();
     setupSelectAll();
     setupCampaignDropdownChange();
     setupShowMore(); // ─── FIX: attaches show more click handler
 
     // Auto-load rankings on page load
-    await loadRankings('all');
+    await loadRankings(initialCampaignId);
 
     // Listen for checkbox changes to update compare button
     document.addEventListener('change', function(e) {
