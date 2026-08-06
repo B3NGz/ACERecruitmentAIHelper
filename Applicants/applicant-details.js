@@ -7,7 +7,9 @@ import {
   getApplicantById,
   getAssessmentByApplicantAndCampaign,
   getCampaignById,
-  getRecommendationBadgeClass
+  getRecommendationBadgeClass,
+  updateApplicant,
+  sameId
 } from '../Assets/js/dataService.js';
 import { showToast } from '../Assets/js/toast.js';
 
@@ -289,6 +291,7 @@ function renderHrAssessment(applicantId) {
         <span style="font-size:0.8rem;color:var(--text-muted);">${a.date || 'N/A'}</span>
       </div>
       ${a.notes ? `<p style="margin-top:0.5rem;font-size:0.9rem;color:var(--text-secondary);">${escapeHtml(a.notes)}</p>` : ''}
+      ${a.comment ? `<p style="margin-top:0.65rem;padding-top:0.65rem;border-top:1px solid var(--border-light);font-size:0.9rem;color:var(--text-secondary);"><strong>HR comment:</strong> ${escapeHtml(a.comment)}</p>` : ''}
       <button class="delete-hr-assessment" style="background:none;border:none;color:var(--text-muted);cursor:pointer;margin-top:0.25rem;font-size:0.85rem;padding:0;">✕ Remove Assessment</button>
     </div>
   `;
@@ -332,11 +335,13 @@ function setupHrAssessment(applicantId) {
   const submitBtn = document.getElementById('submit-hr-assessment');
   const scoreInput = document.getElementById('hr-score');
   const notesInput = document.getElementById('hr-notes');
+  const commentInput = document.getElementById('hr-comments');
   if (!submitBtn || !scoreInput) return;
 
   submitBtn.addEventListener('click', function() {
     const score = parseInt(scoreInput.value);
     const notes = notesInput.value.trim();
+    const comment = commentInput?.value.trim() || '';
     if (isNaN(score) || score < 0 || score > 100) {
       showToast('Please enter a valid score between 0 and 100.', 'warning');
       return;
@@ -345,6 +350,7 @@ function setupHrAssessment(applicantId) {
     data.assessment = {
       score: score,
       notes: notes || 'No notes provided.',
+      comment: comment || 'No HR comment provided.',
       date: new Date().toISOString().split('T')[0]
     };
     saveHrData(applicantId, data);
@@ -356,19 +362,34 @@ function setupHrAssessment(applicantId) {
     // Clear fields
     scoreInput.value = '';
     notesInput.value = '';
+    if (commentInput) commentInput.value = '';
     showToast('HR assessment submitted! Final score updated.', 'success');
   });
 }
 
 // ─── SETUP CV MODAL ─────────────────────────────────────────────
-function setupCampaignMatching(applicant) {
-  const trigger = document.getElementById('find-matching-campaigns');
-  const modal = document.getElementById('campaign-match-modal');
-  const applicantName = document.getElementById('campaign-match-applicant');
-  const closeButtons = document.querySelectorAll('#close-campaign-match-modal, #close-campaign-match-footer');
-  if (!trigger || !modal) return;
+function setupCampaignReassignment(applicant) {
+  const trigger = document.getElementById('reassign-applicant-campaign');
+  const modal = document.getElementById('campaign-reassign-modal');
+  const applicantName = document.getElementById('campaign-reassign-applicant');
+  const dropdown = document.getElementById('applicant-destination-campaign');
+  const items = dropdown?.querySelector('.dropdown-items');
+  const confirmButton = document.getElementById('confirm-campaign-reassign');
+  const closeButtons = document.querySelectorAll('#close-campaign-reassign-modal, #close-campaign-reassign-footer');
+  if (!trigger || !modal || !dropdown || !items || !confirmButton) return;
 
   if (applicantName) applicantName.textContent = applicant.fullName || 'this applicant';
+  const campaigns = (db?.campaigns || []).filter(campaign =>
+    !sameId(campaign.id, applicant.campaignId) &&
+    String(campaign.status || '').toLowerCase() === 'active'
+  );
+  items.innerHTML = campaigns.map(campaign =>
+    `<div class="dropdown-item" data-value="${escapeHtml(campaign.id)}">${escapeHtml(campaign.jobTitle || 'Untitled campaign')} <small>${escapeHtml(campaign.status || '')}</small></div>`
+  ).join('');
+  if (!campaigns.length) {
+    dropdown.querySelector('.selected-text').textContent = 'No other campaigns available';
+    dropdown.querySelector('.dropdown-btn')?.setAttribute('disabled', '');
+  }
 
   const close = () => {
     modal.style.display = 'none';
@@ -377,13 +398,30 @@ function setupCampaignMatching(applicant) {
   const open = () => {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    document.getElementById('close-campaign-match-modal')?.focus();
-    document.dispatchEvent(new CustomEvent('applicantCampaignMatchRequested', {
-      detail: { applicantId: applicant.id, campaignId: applicant.campaignId }
-    }));
+    document.getElementById('close-campaign-reassign-modal')?.focus();
   };
 
   trigger.addEventListener('click', open);
+  dropdown.addEventListener('dropdownChange', () => {
+    confirmButton.disabled = !dropdown.dataset.value;
+  });
+  confirmButton.addEventListener('click', async () => {
+    const campaignId = dropdown.dataset.value;
+    if (!campaignId || confirmButton.disabled) return;
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Moving...';
+    try {
+      await updateApplicant(applicant.id, { ...applicant, campaignId });
+      showToast('Applicant moved to the selected campaign.', 'success');
+      close();
+      window.location.reload();
+    } catch (error) {
+      console.error('Campaign reassignment error:', error);
+      showToast('Unable to move the applicant. Please try again.', 'error');
+      confirmButton.disabled = false;
+      confirmButton.textContent = 'Move Applicant';
+    }
+  });
   closeButtons.forEach(button => button.addEventListener('click', close));
   modal.addEventListener('click', event => { if (event.target === modal) close(); });
   document.addEventListener('keydown', event => {
@@ -646,10 +684,8 @@ export default async function initApplicantDetails() {
 
     populateApplicantInfo(applicant, campaign);
     populateAssessment(assessment, applicant);
-    setupCampaignMatching(applicant);
-    setupHrComments(id);
+    setupCampaignReassignment(applicant);
     setupHrAssessment(id);
-    renderHrComments(id);
     renderHrAssessment(id);
 
     // ─── HR Features ─────────────────────────────────────────────
