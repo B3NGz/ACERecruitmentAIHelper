@@ -47,6 +47,20 @@
       margin-top: -0.5rem;
       margin-bottom: 1.5rem;
     }
+
+    .ranking-section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .ranking-section-header .section-title { margin-bottom: 0; }
+    .ranking-campaign-control { width: min(320px, 100%); }
+    @media (max-width: 640px) {
+      .ranking-section-header { align-items: stretch; flex-direction: column; }
+      .ranking-campaign-control { width: 100%; }
+    }
     .dark .dashboard-subtitle {
       color: rgba(255,255,255,0.6);
     }
@@ -260,11 +274,11 @@
         <span class="stat-label" data-i18n="applications_received">Applications Received</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value" id="awaiting-review"></span>
-        <span class="stat-label" data-i18n="awaiting_review">Awaiting Review</span>
+        <span class="stat-value" id="qualified-recommendations"></span>
+        <span class="stat-label">Qualified</span>
       </div>
       <div class="stat-card">
-        <span class="stat-value" id="shortlisted"></span>
+        <span class="stat-value" id="strong-recommendations"></span>
         <span class="stat-label">Strong Recommendations</span>
       </div>
       <div class="stat-card">
@@ -294,7 +308,19 @@
 
     <!-- Top Candidates -->
     <section class="top-candidates-section">
-      <h2 class="section-title" data-i18n="top_ranked_candidates">Top Ranked Candidates</h2>
+      <div class="ranking-section-header">
+        <h2 class="section-title" data-i18n="top_ranked_candidates">Top Ranked Candidates</h2>
+        <div class="toolbar-field ranking-campaign-control">
+          <span>View rankings for</span>
+          <div class="custom-dropdown toolbar-dropdown" id="dashboard-ranking-campaign" data-value="">
+            <button class="dropdown-btn" type="button" aria-label="Choose campaign rankings">
+              <span class="selected-text">Choose a campaign</span>
+              <span class="arrow"><svg viewBox="0 0 12 8" fill="none"><path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.8"/></svg></span>
+            </button>
+            <div class="dropdown-menu"><div class="dropdown-items"></div></div>
+          </div>
+        </div>
+      </div>
       <div class="table-wrapper">
         <table class="rankings-table">
           <thead>
