@@ -6216,6 +6216,68 @@ section[aria-label="Full recommendation"] .stat-card:hover {
 .toolbar-dropdown .dropdown-item.active small { background: color-mix(in srgb, var(--color-primary) 13%, transparent); color: var(--color-primary); }
 .dark .toolbar-dropdown .dropdown-menu { box-shadow: 0 18px 42px rgba(0, 0, 0, .42); }
 
+/* Logout confirmation is a destructive action. Keep its contrast independent
+   from --clr-charcoal, which intentionally becomes lighter in dark mode. */
+#logout-btn {
+  border: 1px solid #b4232a !important;
+  background: #fff5f5 !important;
+  color: #a61b23 !important;
+  box-shadow: none;
+}
+
+#logout-btn:hover {
+  border-color: #961f25 !important;
+  background: #fee2e2 !important;
+  color: #86181d !important;
+}
+
+#logout-btn:focus-visible {
+  outline: 3px solid rgba(180, 35, 42, .28);
+  outline-offset: 2px;
+}
+
+.dark #logout-btn {
+  border-color: #f87171 !important;
+  background: rgba(127, 29, 29, .42) !important;
+  color: #fecaca !important;
+}
+
+.dark #logout-btn:hover {
+  border-color: #fca5a5 !important;
+  background: rgba(185, 28, 28, .62) !important;
+  color: #fff !important;
+}
+
+#confirmLogoutBtn {
+  border: 1px solid #9f1d24 !important;
+  background: #b4232a !important;
+  color: #fff !important;
+  box-shadow: 0 6px 16px rgba(180, 35, 42, .2);
+}
+
+#confirmLogoutBtn:hover {
+  border-color: #86181d !important;
+  background: #961f25 !important;
+  color: #fff !important;
+}
+
+#confirmLogoutBtn:focus-visible {
+  outline: 3px solid rgba(180, 35, 42, .32);
+  outline-offset: 2px;
+}
+
+.dark #confirmLogoutBtn {
+  border-color: #f87171 !important;
+  background: #b91c1c !important;
+  color: #fff !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .3);
+}
+
+.dark #confirmLogoutBtn:hover {
+  border-color: #fca5a5 !important;
+  background: #dc2626 !important;
+}
+
 .campaign-import-action {
   display: flex;
   align-items: center;
