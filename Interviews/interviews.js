@@ -64,15 +64,15 @@ function renderInterviews() {
 
     return `
       <tr>
-        <td><a href="/Applicants/applicant-details.html?id=${i.applicantId}" style="color:var(--link-color);text-decoration:none;">${i.applicantName}</a></td>
-        <td><a href="/Campaign/campaign-details.html?id=${i.campaignId}" style="color:var(--link-color);text-decoration:none;">${i.campaignName}</a></td>
+        <td><a href="../Applicants/applicant-details.html?id=${i.applicantId}" style="color:var(--link-color);text-decoration:none;">${i.applicantName}</a></td>
+        <td><a href="../Campaign/campaign-details.html?id=${i.campaignId}" style="color:var(--link-color);text-decoration:none;">${i.campaignName}</a></td>
         <td>${i.interviewer}</td>
         <td>${date} ${time}</td>
         <td><span class="badge ${statusClass}">${i.status}</span></td>
         <td>${i.score || '—'}</td>
         <td>
           <button class="btn btn-secondary schedule-btn" data-interview-id="${i.id}" data-applicant-id="${i.applicantId}" data-applicant-name="${i.applicantName}" style="padding:0.2rem 0.8rem;font-size:0.8rem;">Schedule</button>
-          <a href="/Applicants/applicant-details.html?id=${i.applicantId}" class="btn btn-secondary" aria-label="View ${i.applicantName} applicant details" style="padding:0.2rem 0.8rem;font-size:0.8rem;">View</a>
+          <a href="../Applicants/applicant-details.html?id=${i.applicantId}" class="btn btn-secondary" aria-label="View ${i.applicantName} applicant details" style="padding:0.2rem 0.8rem;font-size:0.8rem;">View</a>
         </td>
       </tr>
     `;
