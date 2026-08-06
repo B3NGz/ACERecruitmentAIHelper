@@ -6,7 +6,7 @@ import {
   loadDatabase,
   getRecommendationBadgeClass,
   sameId
-} from '..ACERecruitmentAIHelper/Assets/js/dataService.js';
+} from '../Assets/js/dataService.js';
 import { showToast } from '../Assets/js/toast.js';
 
 let allApplicants = [];
@@ -213,13 +213,13 @@ function renderApplicants() {
 
     return `<tr data-applicant-id="${a.id}">
       ${selectMode ? `<td><input type="checkbox" class="applicant-checkbox" data-id="${a.id}" ${isChecked} /></td>` : ''}
-      <td><a href="ACERecruitmentAIHelper/Applicants/applicant-details.html?id=${a.id}" style="color:var(--link-color);text-decoration:none;">${a.fullName}</a></td>
+      <td><a href="../Applicants/applicant-details.html?id=${a.id}" style="color:var(--link-color);text-decoration:none;">${a.fullName}</a></td>
       <td>${campaign?.jobTitle || 'Unknown'}</td>
       <td>${a.currentPosition}</td>
       <td>${Number.isFinite(Number(a.yearsExperience)) ? `${Number(a.yearsExperience)} yrs` : 'N/A'}</td>
       <td>${score}</td>
       <td><span class="badge ${recClass} recommendation-preview">${rec}</span></td>
-      <td><a href="ACERecruitmentAIHelper/Applicants/applicant-details.html?id=${a.id}" class="btn btn-secondary" style="padding:0.3rem 1rem;">View</a></td>
+      <td><a href="../Applicants/applicant-details.html?id=${a.id}" class="btn btn-secondary" style="padding:0.3rem 1rem;">View</a></td>
     </tr>`;
   }).join('');
 
@@ -574,7 +574,7 @@ function setupTrashModal() {
       } else {
         listContainer.innerHTML = trashedApplicants.map(a => `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0;border-bottom:1px solid var(--border-light);">
-            <span><a href="ACERecruitmentAIHelper/Applicants/applicant-details.html?id=${a.id}" style="color:var(--link-color);text-decoration:none;">${a.fullName}</a></span>
+            <span><a href="../Applicants/applicant-details.html?id=${a.id}" style="color:var(--link-color);text-decoration:none;">${a.fullName}</a></span>
             <div style="display:flex;gap:0.5rem;">
               <button class="btn btn-secondary restore-btn" data-id="${a.id}" style="padding:0.2rem 0.8rem;font-size:0.8rem;">Restore</button>
               <button class="btn btn-secondary delete-permanent-btn" data-id="${a.id}" style="padding:0.2rem 0.8rem;font-size:0.8rem;color:#E74C3C;border-color:#E74C3C;">Delete Permanently</button>
