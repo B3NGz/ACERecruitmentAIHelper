@@ -313,6 +313,7 @@ body::before {
 /* ─── Google Button ──────────────────────────────────────────── */
 #google-signin-button {
   display: flex !important;
+  align-items: center;
   justify-content: center;
   margin: 1.5rem 0 1rem;
   min-height: 56px;
@@ -321,7 +322,13 @@ body::before {
 }
 
 #google-signin-button > * {
-  transform: scale(1.05);
+  max-width: 100%;
+  transform: none;
+}
+
+#google-signin-button iframe {
+  display: block;
+  max-width: 100%;
 }
 
 /* ─── Terms ──────────────────────────────────────────────────── */
