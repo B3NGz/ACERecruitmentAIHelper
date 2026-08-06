@@ -38,11 +38,11 @@ function renderRankings(ranked) {
       <tr>
         <td><input type="checkbox" data-applicant-id="${c.id}" /></td>
         <td><strong>#${index + 1}</strong></td>
-        <td><a href="/Applicants/applicant-details.html?id=${c.id}" style="color:var(--link-color);text-decoration:none;">${c.fullName}</a></td>
+        <td><a href="../Applicants/applicant-details.html?id=${c.id}" style="color:var(--link-color);text-decoration:none;">${c.fullName}</a></td>
         <td>${c.campaignName}</td>
         <td><strong>${c.score}</strong></td>
         <td><span class="badge ${recClass} recommendation-preview">${c.recommendation}</span></td>
-        <td><a href="/Applicants/applicant-details.html?id=${c.id}" class="btn btn-secondary" style="padding:0.2rem 0.8rem;font-size:0.8rem;">View</a></td>
+        <td><a href="../Applicants/applicant-details.html?id=${c.id}" class="btn btn-secondary" style="padding:0.2rem 0.8rem;font-size:0.8rem;">View</a></td>
       </tr>
     `;
   }).join('');
@@ -168,7 +168,7 @@ function setupCompareSelected() {
       return;
     }
     const ids = Array.from(selected).map(cb => cb.dataset.applicantId);
-    window.location.href = window.appUrl?.(`/Applicants/applicant-details.html?compare=${ids.join(',')}`) || `../Applicants/applicant-details.html?compare=${ids.join(',')}`;
+    window.location.href = `../Applicants/applicant-details.html?compare=${ids.join(',')}`;
   });
 }
 
