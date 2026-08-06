@@ -3,7 +3,7 @@
 // ============================================================
 
 import { loadDatabase, sameId, getRecommendationBadgeClass } from '../Assets/js/dataService.js';
-import { showToast } from 'https://b3ngz.github.io/Assets/js/toast.js';
+import { showToast } from '../Assets/js/toast.js';
 
 let allAssessments = [];
 let visibleCount = 5;
@@ -85,13 +85,13 @@ function renderAssessments() {
 
     return `
       <tr>
-        <td><a href="https://b3ngz.github.io/Applicants/applicant-details.html?id=${a.applicantId}" style="color:var(--link-color);text-decoration:none;">${candidateName}</a></td>
-        <td><a href="https://b3ngz.github.io/Campaign/campaign-details.html?id=${a.campaignId}" style="color:var(--link-color);text-decoration:none;">${campaignName}</a></td>
+        <td><a href="../Applicants/applicant-details.html?id=${a.applicantId}" style="color:var(--link-color);text-decoration:none;">${candidateName}</a></td>
+        <td><a href="../Campaign/campaign-details.html?id=${a.campaignId}" style="color:var(--link-color);text-decoration:none;">${campaignName}</a></td>
         <td><strong>${a.overallScore}</strong></td>
         <td><span class="badge ${recClass} recommendation-preview">${a.recommendation}</span></td>
         <td>${displayDate}</td>
         <td>
-          <a href="https://b3ngz.github.io/Applicants/applicant-details.html?id=${a.applicantId}" class="btn btn-secondary" style="padding:0.2rem 0.8rem;font-size:0.8rem;">View</a>
+          <a href="../Applicants/applicant-details.html?id=${a.applicantId}" class="btn btn-secondary" style="padding:0.2rem 0.8rem;font-size:0.8rem;">View</a>
         </td>
       </tr>
     `;
