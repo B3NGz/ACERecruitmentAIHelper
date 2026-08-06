@@ -1,356 +1,499 @@
 // ============================================================
-// USER MENU – Sidebar + Header Welcome
+// ui.js – Shared UI utilities: dark mode, dropdowns, modals, search clear, breadcrumbs
 // ============================================================
 
-'use strict';
+import { showToast } from './toast.js';
+import './theme-transition.js';
 
-// ─── CONFIGURATION ───────────────────────────────────────────────
-const CONFIG = {
-  GOOGLE_CLIENT_ID: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com',
-  PROTECT_PAGES: false,
-  REDIRECT_URL: '../Dashboard/dashboard.html',
+// Shape-matched placeholders shown while API-backed page sections are empty.
+export function initDataSkeletons(root = document) {
+  root.querySelectorAll('tbody:empty').forEach(tbody => {
+    const table = tbody.closest('table');
+    const columnCount = Math.max(1, table?.querySelectorAll('thead th:not([style*="display:none"])').length || 1);
+    const rowCount = tbody.id === 'skills-matrix' ? 4 : 5;
+    tbody.setAttribute('aria-busy', 'true');
+    tbody.innerHTML = Array.from({ length: rowCount }, () =>
+      `<tr class="skeleton-table-row" aria-hidden="true">${Array.from(
+        { length: columnCount },
+        () => '<td><span class="skeleton-block"></span></td>'
+      ).join('')}</tr>`
+    ).join('');
+  });
+
+  root.querySelectorAll('.stat-value:empty').forEach(element => {
+    element.setAttribute('aria-busy', 'true');
+    element.innerHTML = '<span class="skeleton-block skeleton-block--stat" aria-hidden="true"></span>';
+  });
+
+  const detailSkeletons = {
+    '#applicant-name': 'title',
+    '#campaign-title': 'title',
+    '#applicant-score': 'score',
+    '#applicant-recommendation': 'badge'
+  };
+  Object.entries(detailSkeletons).forEach(([selector, shape]) => {
+    const element = root.querySelector(selector);
+    if (!element || element.textContent.trim() || element.children.length) return;
+    element.setAttribute('aria-busy', 'true');
+    element.innerHTML = `<span class="skeleton-block skeleton-block--${shape}" aria-hidden="true"></span>`;
+  });
+
+  root.querySelectorAll('#applicant-summary:empty, #score-breakdown:empty, #category-scores:empty').forEach(element => {
+    element.setAttribute('aria-busy', 'true');
+    element.innerHTML = Array.from(
+      { length: element.id === 'category-scores' ? 4 : 3 },
+      () => '<span class="skeleton-block skeleton-block--line" aria-hidden="true"></span>'
+    ).join('');
+  });
+}
+
+const PAGE_DESCRIPTIONS = {
+  '/Dashboard/': 'Monitor recruitment activity and focus the team on the next decisions.',
+  '/Applicants/applicants': 'Review every candidate, compare fit, and move the strongest applicants forward.',
+  '/Applicants/applicant-details': 'Review candidate evidence, assessment results, and hiring recommendations.',
+  '/Assessments/': 'Evaluate completed AI assessments and identify candidates requiring review.',
+  '/Campaign/create-campaign': 'Set up a campaign using the fields supported by the recruitment database.',
+  '/Campaign/campaign-details': 'Review campaign requirements, documents, and associated applicants.',
+  '/Campaign/campaign': 'Manage active and historical recruitment campaigns from one workspace.',
+  '/Interviews/': 'Coordinate upcoming interviews and keep feedback moving on schedule.',
+  '/Rankings/': 'Compare candidates by assessment score and recommendation strength.',
+  '/Reports/': 'Prepare concise candidate submission packs for client review.',
+  '/Settings/': 'Configure workspace preferences, appearance, and connected services.'
 };
 
-const IS_LOGIN_PAGE = window.location.pathname.includes('/Login/');
+export function initPageHierarchy(root = document) {
+  const header = root.querySelector('.dashboard-header');
+  const title = header?.querySelector('h1');
+  if (!header || !title) return;
 
-// ─── UTILITY ────────────────────────────────────────────────────
-function getUser() {
-  try {
-    const data = localStorage.getItem('user');
-    return data ? JSON.parse(data) : null;
-  } catch { return null; }
-}
-
-function setUser(user) {
-  localStorage.setItem('user', JSON.stringify(user));
-}
-
-function clearUser() {
-  localStorage.removeItem('user');
-}
-
-function getProfileIcon(size = 20) {
-  return `
-    <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-      <circle cx="12" cy="7" r="4"/>
-    </svg>
-  `;
-}
-
-// ─── LOGOUT ──────────────────────────────────────────────────────
-import { showLogoutModal } from './ui.js';
-import { initChat } from './chat.js';
-
-function logout() {
-  const user = getUser();
-  if (user && user.idToken) {
-    try {
-      google.accounts.id.disableAutoSelect();
-      google.accounts.id.revoke(user.idToken, () => {});
-    } catch (e) {}
-  }
-  clearUser();
-  window.location.href = window.appUrl?.('/Login/login.html') || '../Login/login.html';
-}
-
-// ─── RENDER HEADER WELCOME ────────────────────────────────────
-function renderHeaderWelcome(user) {
-  const container = document.getElementById('userMenuContainer');
-  if (!container) return;
-
-  if (!user) {
-    container.innerHTML = '';
-    return;
+  let heading = title.parentElement;
+  if (heading === header) {
+    heading = document.createElement('div');
+    heading.className = 'page-heading';
+    header.insertBefore(heading, title);
+    heading.appendChild(title);
+  } else {
+    heading.classList.add('page-heading');
   }
 
-  container.innerHTML = `
-    <span class="welcome-text">Welcome,</span>
-    <span class="user-name-header">${user.fullName || 'User'}</span>
-    <a href="/Settings/settings.html" class="settings-icon-link" aria-label="Open settings" title="Settings">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 2.75v2.1M12 19.15v2.1M21.25 12h-2.1M4.85 12h-2.1M18.54 5.46l-1.48 1.48M6.94 17.06l-1.48 1.48M18.54 18.54l-1.48-1.48M6.94 6.94 5.46 5.46"/>
-        <circle cx="12" cy="12" r="5.15"/>
-        <circle cx="12" cy="12" r="1.9"/>
-      </svg>
-      <span class="settings-icon-label">Settings</span>
-    </a>
-  `;
+  if (heading.querySelector('.page-subtitle')) return;
+  const path = window.location.pathname;
+  const key = Object.keys(PAGE_DESCRIPTIONS).find(candidate => path.includes(candidate));
+  if (!key) return;
+  const subtitle = document.createElement('p');
+  subtitle.className = 'page-subtitle';
+  subtitle.textContent = PAGE_DESCRIPTIONS[key];
+  title.insertAdjacentElement('afterend', subtitle);
 }
 
-// ─── RENDER SIDEBAR USER MENU ────────────────────────────────
-function renderSidebarUserMenu(user) {
-  const generalNav = document.querySelector('.sidebar .general-nav');
-  if (!generalNav) {
-    console.warn('⚠️ .sidebar .general-nav not found – skipping sidebar user menu');
-    return;
-  }
+const EMPTY_ACTIONS = {
+  'campaign-list': { label: 'Create campaign', href: '../Campaign/create-campaign.html' },
+  'applicant-list': { label: 'View campaigns', href: '../Campaign/campaign.html' },
+  'assessments-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'interviews-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'rankings-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'reports-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'candidate-selection-list': { label: 'View applicants', href: '../Applicants/applicants.html' },
+  'top-candidates': { label: 'View all applicants', href: '../Applicants/applicants.html' }
+};
 
-  if (!user) {
-    generalNav.innerHTML = `
-      <a href="#" class="nav-item logout-btn" id="logoutSidebarBtn" data-page="logout">
-        <span class="icon"><svg viewBox="0 0 20 20" fill="none"><path d="M8 1H4C2.89543 1 2 1.89543 2 3V17C2 18.1046 2.89543 19 4 19H8M13 14L18 9L13 14ZM18 9L13 4L18 9ZM18 9H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        <span class="label">Logout</span>
-      </a>
-    `;
-    return;
-  }
+export function enhanceEmptyStates(root = document) {
+  root.querySelectorAll('tbody').forEach(tbody => {
+    if (tbody.querySelector('.empty-state')) return;
+    const rows = tbody.querySelectorAll('tr');
+    if (rows.length !== 1) return;
+    const cells = rows[0].querySelectorAll('td');
+    if (cells.length !== 1) return;
+    const message = cells[0].textContent.trim();
+    if (!/^(No\b|Trash is empty)/i.test(message)) return;
 
-  generalNav.innerHTML = `
-    <div class="user-menu-sidebar" id="userMenuSidebar">
-      <button class="user-menu-trigger sidebar-user-trigger" id="userMenuTrigger" aria-label="User menu">
-        <span class="user-avatar">${getProfileIcon(20)}</span>
-        <span class="user-name">${user.fullName || 'User'}</span>
-        <svg class="user-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none">
-          <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-
-      <div class="user-dropdown sidebar-user-dropdown" id="userDropdown">
-        <div class="user-dropdown-header">
-          <span class="user-dropdown-avatar">${getProfileIcon(24)}</span>
-          <div>
-            <div class="user-dropdown-name">${user.fullName || 'User'}</div>
-            <div class="user-dropdown-email">${user.email || ''}</div>
-          </div>
-        </div>
-        <div class="user-dropdown-divider"></div>
-        <a href="/Settings/settings.html" class="user-dropdown-item">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.39 1.26 1 1.51H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-          Settings
-        </a>
-        <a href="#" class="user-dropdown-item" id="userDropdownLogout">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <path d="M8 1H4C2.89543 1 2 1.89543 2 3V17C2 18.1046 2.89543 19 4 19H8M13 14L18 9L13 14ZM18 9L13 4L18 9ZM18 9H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Sign Out
-        </a>
-      </div>
-    </div>
-  `;
-
-  setupDropdown();
+    const action = EMPTY_ACTIONS[tbody.id];
+    cells[0].innerHTML = `<div class="empty-state">
+      <span class="empty-state-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3.75h7.5L19 8.25v11A1.75 1.75 0 0 1 17.25 21H7a2 2 0 0 1-2-2V5.75A2 2 0 0 1 7 3.75Z" stroke="currentColor" stroke-width="1.6"/><path d="M14 3.75v4.5h5M8.5 13h7M8.5 16.5h4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+      <strong>Nothing to show yet</strong>
+      <p>${message}</p>
+      ${action ? `<a class="btn btn-secondary" href="${action.href}">${action.label}</a>` : ''}
+    </div>`;
+  });
 }
 
-// ─── DROPDOWN LOGIC ────────────────────────────────────────────
-function setupDropdown() {
-  const trigger = document.getElementById('userMenuTrigger');
-  const menu = document.getElementById('userMenuSidebar');
+function scoreBand(score) {
+  if (score >= 80) return 'score-band--high';
+  if (score >= 60) return 'score-band--good';
+  if (score >= 40) return 'score-band--review';
+  return 'score-band--low';
+}
 
-  if (trigger && menu) {
-    trigger.removeEventListener('click', trigger._clickHandler);
-    trigger._clickHandler = function(e) {
-      e.stopPropagation();
-      menu.classList.toggle('open');
-    };
-    trigger.addEventListener('click', trigger._clickHandler);
+export function applySemanticDataStyles(root = document) {
+  root.querySelectorAll('table').forEach(table => {
+    const headers = [...table.querySelectorAll('thead th')];
+    const scoreIndex = headers.findIndex(header => /score$/.test(header.textContent.trim().toLowerCase()));
+    if (scoreIndex < 0) return;
 
-    document.removeEventListener('click', menu._outsideClickHandler);
-    menu._outsideClickHandler = function(e) {
-      if (menu && !menu.contains(e.target)) {
-        menu.classList.remove('open');
-      }
-    };
-    document.addEventListener('click', menu._outsideClickHandler);
+    table.querySelectorAll('tbody tr:not(.skeleton-table-row)').forEach(row => {
+      const cell = row.children[scoreIndex];
+      if (!cell || cell.classList.contains('score-cell')) return;
+      const score = Number.parseFloat(cell.textContent.trim());
+      if (!Number.isFinite(score)) return;
+      cell.classList.add('score-cell', scoreBand(score));
+      cell.dataset.score = String(score);
+      cell.setAttribute('aria-label', `Score: ${score}`);
+    });
+  });
 
-    document.removeEventListener('keydown', menu._escapeHandler);
-    menu._escapeHandler = function(e) {
-      if (e.key === 'Escape' && menu && menu.classList.contains('open')) {
-        menu.classList.remove('open');
-      }
-    };
-    document.addEventListener('keydown', menu._escapeHandler);
+  const applicantScore = root.querySelector('#applicant-score');
+  if (applicantScore && !applicantScore.querySelector('.skeleton-block')) {
+    const score = Number.parseFloat(applicantScore.textContent.trim());
+    applicantScore.classList.remove('score-band--high', 'score-band--good', 'score-band--review', 'score-band--low');
+    if (Number.isFinite(score)) applicantScore.classList.add(scoreBand(score));
   }
 
-  // Sign Out button inside dropdown – use event delegation
-  const dropdown = document.getElementById('userDropdown');
-  if (dropdown) {
-    dropdown.removeEventListener('click', dropdown._logoutHandler);
-    dropdown._logoutHandler = function(e) {
-      const target = e.target.closest('#userDropdownLogout');
-      if (target) {
-        e.preventDefault();
-        showLogoutModal();
-      }
-    };
-    dropdown.addEventListener('click', dropdown._logoutHandler);
+  root.querySelectorAll('#rankings-list tr:not(.skeleton-table-row)').forEach((row, index) => {
+    row.classList.remove('rank-tier--gold', 'rank-tier--silver', 'rank-tier--bronze');
+    if (index === 0) row.classList.add('rank-tier--gold');
+    if (index === 1) row.classList.add('rank-tier--silver');
+    if (index === 2) row.classList.add('rank-tier--bronze');
+  });
+}
+
+let lastInteraction = {
+  x: window.innerWidth / 2,
+  y: window.innerHeight / 2,
+  time: 0
+};
+
+function addButtonRipple(control, event) {
+  if (document.documentElement.classList.contains('reduce-motion') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rect = control.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height) * 1.8;
+  const ripple = document.createElement('span');
+  ripple.className = 'interaction-ripple';
+  ripple.style.width = `${size}px`;
+  ripple.style.height = `${size}px`;
+  ripple.style.left = `${event.clientX - rect.left - size / 2}px`;
+  ripple.style.top = `${event.clientY - rect.top - size / 2}px`;
+  control.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+}
+
+function celebrate(origin = lastInteraction) {
+  if (document.documentElement.classList.contains('reduce-motion') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const recent = Date.now() - origin.time < 1800;
+  const x = recent ? origin.x : window.innerWidth - 48;
+  const y = recent ? origin.y : 72;
+  const colors = ['#2563eb', '#0f8b8d', '#7555b7', '#16805d', '#e5aa55'];
+
+  for (let index = 0; index < 18; index += 1) {
+    const particle = document.createElement('span');
+    const angle = (Math.PI * 2 * index) / 18 + Math.random() * 0.28;
+    const distance = 42 + Math.random() * 66;
+    particle.className = 'success-confetti';
+    particle.style.left = `${x}px`;
+    particle.style.top = `${y}px`;
+    particle.style.background = colors[index % colors.length];
+    particle.style.setProperty('--confetti-x', `${Math.cos(angle) * distance}px`);
+    particle.style.setProperty('--confetti-y', `${Math.sin(angle) * distance + 32}px`);
+    particle.style.setProperty('--confetti-rotate', `${120 + Math.random() * 480}deg`);
+    particle.style.setProperty('--confetti-delay', `${Math.random() * 70}ms`);
+    document.body.appendChild(particle);
+    particle.addEventListener('animationend', () => particle.remove(), { once: true });
   }
 }
 
-// ─── SIDEBAR LOGOUT ──────────────────────────────────────────
-function setupSidebarLogout() {
-  const generalNav = document.querySelector('.sidebar .general-nav');
-  if (!generalNav) return;
+export function initMicroInteractions() {
+  document.addEventListener('pointerdown', event => {
+    const control = event.target.closest('.btn, .nav-item, .user-dropdown-item, .theme-choice, .density-choice');
+    if (!control || control.matches(':disabled, [aria-disabled="true"]')) return;
+    lastInteraction = { x: event.clientX, y: event.clientY, time: Date.now() };
+    addButtonRipple(control, event);
+  });
 
-  generalNav.removeEventListener('click', generalNav._logoutHandler);
-  generalNav._logoutHandler = function(e) {
-    const target = e.target.closest('#logoutSidebarBtn');
-    if (target) {
-      e.preventDefault();
-      showLogoutModal();
+  document.addEventListener('click', event => {
+    const destructive = event.target.closest('#move-to-trash-btn, #empty-trash-btn, .delete-permanent-btn');
+    if (!destructive) return;
+    destructive.classList.remove('interaction-nudge');
+    void destructive.offsetWidth;
+    destructive.classList.add('interaction-nudge');
+  });
+
+  window.addEventListener('ui:celebrate', () => celebrate());
+}
+
+function clearResolvedSkeletonState(mutations) {
+  mutations.forEach(({ target }) => {
+    const element = target.nodeType === Node.ELEMENT_NODE ? target : target.parentElement;
+    const busy = element?.closest?.('[aria-busy="true"]');
+    if (busy && !busy.querySelector('.skeleton-block')) busy.removeAttribute('aria-busy');
+  });
+  enhanceEmptyStates(document);
+  applySemanticDataStyles(document);
+}
+
+// Page modules are loaded at the end of the document, before their API calls begin.
+initPageHierarchy(document);
+initDataSkeletons(document);
+enhanceEmptyStates(document);
+applySemanticDataStyles(document);
+initMicroInteractions();
+new MutationObserver(clearResolvedSkeletonState).observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
+// ─── DARK MODE TOGGLE SWITCH ──────────────────────────────
+export function initDarkMode() {
+  const toggle = document.getElementById('darkModeToggle');
+  if (!toggle) return;
+
+  function applyTheme(isDark) {
+    document.documentElement.classList.toggle('dark', isDark);
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    toggle.checked = isDark;
+    updateKnob(isDark);
+    // Dispatch event for charts and other listeners
+    document.dispatchEvent(new CustomEvent('themeChanged', { detail: { isDark } }));
+  }
+
+  function updateKnob(isDark) {
+    const knob = document.getElementById('toggleKnob');
+    if (knob) {
+      knob.classList.toggle('dark', isDark);
     }
-  };
-  generalNav.addEventListener('click', generalNav._logoutHandler);
+  }
+
+  // Load saved state
+  const savedTheme = localStorage.getItem('theme');
+  const isDark = savedTheme === 'dark';
+  applyTheme(isDark);
+
+  // Event listener
+  toggle.addEventListener('change', function() {
+    const requestedTheme = this.checked;
+    window.runThemeTransition({
+      source: toggle,
+      update: () => applyTheme(requestedTheme)
+    });
+  });
 }
 
-// ─── PAGE PROTECTION ────────────────────────────────────────────
-function protectPage() {
-  const user = getUser();
-
-  if (IS_LOGIN_PAGE) {
-    if (CONFIG.PROTECT_PAGES && user) {
-      window.location.href = window.appUrl?.('/Dashboard/dashboard.html') || '../Dashboard/dashboard.html';
-      return;
-    }
-    return;
-  }
-
-  if (!CONFIG.PROTECT_PAGES) {
-    if (!user) {
-      const defaultUser = {
-        fullName: 'Demo User',
-        email: 'demo@acerecruit.com',
-        picture: '',
-        givenName: 'Demo',
-        familyName: 'User',
-        sub: 'demo-123',
-        idToken: 'demo-token'
-      };
-      setUser(defaultUser);
-    }
-    const currentUser = getUser();
-    renderHeaderWelcome(currentUser);
-    renderSidebarUserMenu(currentUser);
-    return;
-  }
-
-  if (!user) {
-    window.location.href = window.appUrl?.('/Login/login.html') || '../Login/login.html';
-    return;
-  }
-
-  renderHeaderWelcome(user);
-  renderSidebarUserMenu(user);
-}
-
-// ─── GOOGLE SIGN-IN ─────────────────────────────────────────────
-function initGoogleSignIn() {
-  const buttonContainer = document.getElementById('google-signin-button');
-  if (!buttonContainer) {
-    console.warn('Google button container not found');
-    return;
-  }
-
-  if (typeof google === 'undefined') {
-    console.warn('Google Identity Services not loaded – retrying...');
-    setTimeout(initGoogleSignIn, 2000);
-    return;
-  }
-
+// ─── Watch for theme changes (sync knob) ──────────────────
+const themeObserver = new MutationObserver(() => {
   const isDark = document.documentElement.classList.contains('dark');
-
-  google.accounts.id.initialize({
-    client_id: CONFIG.GOOGLE_CLIENT_ID,
-    callback: handleCredentialResponse,
-    cancel_on_tap_outside: false,
-  });
-
-  google.accounts.id.renderButton(buttonContainer, {
-    type: 'standard',
-    shape: 'pill',
-    theme: isDark ? 'filled_blue' : 'outline',
-    text: 'continue_with',
-    size: 'large',
-    logo_alignment: 'left',
-    width: 280,
-  });
-}
-
-function handleCredentialResponse(response) {
-  try {
-    const payload = decodeJwt(response.credential);
-    const user = {
-      fullName: payload.name || 'User',
-      email: payload.email || '',
-      picture: payload.picture || '',
-      givenName: payload.given_name || '',
-      familyName: payload.family_name || '',
-      sub: payload.sub || '',
-      idToken: response.credential,
-    };
-    setUser(user);
-    window.location.href = CONFIG.REDIRECT_URL;
-  } catch (err) {
-    console.error('Sign-in failed:', err);
+  const knob = document.getElementById('toggleKnob');
+  if (knob) {
+    knob.classList.toggle('dark', isDark);
   }
-}
+  document.dispatchEvent(new CustomEvent('themeChanged', { detail: { isDark } }));
+});
+themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
-function decodeJwt(token) {
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const jsonPayload = decodeURIComponent(
-    atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
-  );
-  return JSON.parse(jsonPayload);
-}
+// ─── CUSTOM DROPDOWNS ──────────────────────────────────────
+export function initDropdowns(container = document) {
+  const dropdowns = container.querySelectorAll('.custom-dropdown');
 
-// ─── SPLASH ANIMATION ──────────────────────────────────────────
-function setupSplash() {
-  if (!IS_LOGIN_PAGE) return;
-  const splash = document.getElementById('splash-overlay');
-  const login = document.getElementById('login-container');
-  if (!splash || !login) return;
+  dropdowns.forEach(dropdown => {
+    const btn = dropdown.querySelector('.dropdown-btn');
+    const searchInput = dropdown.querySelector('.dropdown-search-input');
+    const selectedText = dropdown.querySelector('.selected-text');
+    const menu = dropdown.querySelector('.dropdown-menu');
+    const noResults = dropdown.querySelector('.dropdown-no-results');
 
-  function revealLogin() {
-    splash.classList.add('fade-out');
-    const onEnd = () => {
-      splash.classList.add('hidden');
-      login.classList.add('visible');
-      splash.removeEventListener('transitionend', onEnd);
-    };
-    splash.addEventListener('transitionend', onEnd);
-    setTimeout(() => {
-      if (!splash.classList.contains('hidden')) {
-        splash.classList.add('hidden');
-        login.classList.add('visible');
+    if (!btn) return;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.contains('open');
+      document.querySelectorAll('.custom-dropdown.open').forEach(d => d.classList.remove('open'));
+      if (!isOpen) {
+        dropdown.classList.add('open');
+        if (searchInput) setTimeout(() => searchInput.focus(), 50);
       }
-    }, 2500);
-  }
+    });
 
-  setTimeout(revealLogin, 2500);
-}
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        e.stopPropagation();
+        const query = searchInput.value.toLowerCase().trim();
+        let hasVisible = false;
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+          const text = item.textContent.toLowerCase();
+          if (text.includes(query)) {
+            item.classList.remove('hidden');
+            hasVisible = true;
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+        if (noResults) noResults.style.display = hasVisible ? 'none' : 'block';
+      });
+      searchInput.addEventListener('click', e => e.stopPropagation());
+      searchInput.addEventListener('mousedown', e => e.stopPropagation());
+    }
 
-// ─── INIT ──────────────────────────────────────────────────────
-function init() {
-  setupSplash();
-
-  if (IS_LOGIN_PAGE) {
-    if (document.readyState === 'complete') {
-      setTimeout(initGoogleSignIn, 500);
-    } else {
-      window.addEventListener('load', function() {
-        setTimeout(initGoogleSignIn, 500);
+    if (menu) {
+      menu.addEventListener('mousedown', e => e.stopPropagation());
+      menu.addEventListener('click', e => {
+        const item = e.target.closest('.dropdown-item');
+        if (!item || !menu.contains(item)) return;
+        e.stopPropagation();
+        dropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const itemText = item.childNodes[0]?.textContent?.trim() || item.textContent.trim();
+        if (selectedText) selectedText.textContent = itemText;
+        dropdown.dataset.value = item.dataset.value;
+        dropdown.classList.remove('open');
+        dropdown.dispatchEvent(new CustomEvent('dropdownChange', {
+          detail: { value: item.dataset.value, text: itemText }
+        }));
       });
     }
-  } else {
-    protectPage();
-    initChat();
-  }
+  });
 
-  // ─── Setup sidebar logout (uses showLogoutModal from ui.js) ──
-  setupSidebarLogout();
-
-  if (localStorage.getItem('theme') === 'dark') {
-    document.documentElement.classList.add('dark');
-  }
+  document.addEventListener('mousedown', (e) => {
+    if (!e.target.closest('.custom-dropdown')) {
+      document.querySelectorAll('.custom-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.custom-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
+  });
 }
 
-// ─── EXPORT ─────────────────────────────────────────────────────
-export { init as initUserMenu };
+// ─── SEARCH CLEAR BUTTON ──────────────────────────────────
+export function initSearchClear(inputId, clearBtnId) {
+  const input = document.getElementById(inputId);
+  const clearBtn = document.getElementById(clearBtnId);
+  if (!input || !clearBtn) return;
 
-// ─── GLOBAL FALLBACK ───────────────────────────────────────────
-window.initUserMenu = init;
-window.handleCredentialResponse = handleCredentialResponse;
+  input.addEventListener('input', () => {
+    clearBtn.style.display = input.value ? 'block' : 'none';
+  });
+  clearBtn.addEventListener('click', () => {
+    input.value = '';
+    input.dispatchEvent(new Event('input'));
+    clearBtn.style.display = 'none';
+  });
+}
+
+// ─── OPTIMIZED LOGOUT MODAL ──────────────────────────────
+let modalTimeout = null;
+
+export function showLogoutModal() {
+  const modal = document.getElementById('logoutModal');
+  if (!modal) return;
+  
+  // Make it visible but start hidden
+  modal.style.display = 'flex';
+  // Force reflow to enable transition
+  void modal.offsetHeight;
+  // Animate in
+  modal.style.opacity = '1';
+  const inner = modal.querySelector('div:first-child');
+  if (inner) {
+    inner.style.opacity = '1';
+    inner.style.transform = 'scale(1)';
+  }
+  document.body.style.overflow = 'hidden';
+}
+
+export function hideLogoutModal() {
+  const modal = document.getElementById('logoutModal');
+  if (!modal) return;
+  
+  // Animate out
+  modal.style.opacity = '0';
+  const inner = modal.querySelector('div:first-child');
+  if (inner) {
+    inner.style.opacity = '0';
+    inner.style.transform = 'scale(0.95)';
+  }
+  // After transition, hide completely
+  clearTimeout(modalTimeout);
+  modalTimeout = setTimeout(() => {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+export function initLogoutModal() {
+  const logoutBtn = document.getElementById('logoutSidebarBtn');
+  const logoutModal = document.getElementById('logoutModal');
+  const confirmBtn = document.getElementById('confirmLogoutBtn');
+  const cancelBtn = document.getElementById('cancelLogoutBtn');
+
+  if (logoutBtn) {
+    // Remove existing listeners to prevent duplicates
+    const newBtn = logoutBtn.cloneNode(true);
+    logoutBtn.parentNode.replaceChild(newBtn, logoutBtn);
+    newBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      showLogoutModal();
+    });
+  }
+
+  // Confirm button
+  if (confirmBtn) {
+    const newConfirm = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirm, confirmBtn);
+    newConfirm.addEventListener('click', () => {
+      sessionStorage.removeItem('sidebarHover');
+      localStorage.removeItem('theme');
+      window.location.href = '../Login/login.html';
+    });
+  }
+
+  // Cancel button
+  if (cancelBtn) {
+    const newCancel = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
+    newCancel.addEventListener('click', hideLogoutModal);
+  }
+
+  // Click outside
+  if (logoutModal) {
+    logoutModal.removeEventListener('click', window._modalOutsideClick);
+    window._modalOutsideClick = (e) => {
+      if (e.target === logoutModal) {
+        hideLogoutModal();
+      }
+    };
+    logoutModal.addEventListener('click', window._modalOutsideClick);
+  }
+
+  // Escape key
+  document.removeEventListener('keydown', window._logoutEscapeHandler);
+  window._logoutEscapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('logoutModal');
+      if (modal && modal.style.display === 'flex') {
+        hideLogoutModal();
+      }
+    }
+  };
+  document.addEventListener('keydown', window._logoutEscapeHandler);
+}
+
+// ─── BREADCRUMBS ──────────────────────────────────────────
+export function renderBreadcrumbs(containerId, items) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  const html = `
+    <ol class="breadcrumbs">
+      ${items.map((item, index) => `
+        <li>
+          ${item.url ? `<a href="${item.url}">${item.label}</a>` : `<span class="current">${item.label}</span>`}
+          ${index < items.length - 1 ? `<span class="separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6" /></svg></span>` : ''}
+        </li>
+      `).join('')}
+    </ol>
+  `;
+  container.innerHTML = html;
+}
+
+// ─── TOAST WRAPPER ────────────────────────────────────────
+export function toast(message, type = 'success', duration = 4000) {
+  return showToast(message, type, duration);
+}
