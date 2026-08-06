@@ -89,7 +89,7 @@ function initGoogleSignIn() {
   google.accounts.id.renderButton(buttonContainer, {
     type: 'standard',
     shape: 'pill',
-    theme: isDark ? 'filled_blue' : 'outline',
+    theme: isDark ? 'filled_black' : 'outline',
     text: 'continue_with',
     size: 'large',
     logo_alignment: 'left',
