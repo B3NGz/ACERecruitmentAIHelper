@@ -135,10 +135,10 @@
     </div>
 
     <!-- ===== FILTER BAR ===== -->
-    <div class="filter-bar" style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;">
-      <div class="custom-dropdown searchable-dropdown" id="campaign-filter">
+    <div class="filter-bar" style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:flex-end;">
+      <div class="toolbar-field" style="width:min(360px,100%);"><span>View rankings for</span><div class="custom-dropdown searchable-dropdown toolbar-dropdown" id="campaign-filter" data-value="">
         <button class="dropdown-btn" type="button">
-          <span class="selected-text">Select Campaign</span>
+          <span class="selected-text">Choose a campaign</span>
           <span class="arrow"><svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button>
         <div class="dropdown-menu">
@@ -146,8 +146,7 @@
           <div class="dropdown-items"></div>
           <div class="dropdown-no-results" style="display:none;">No results found</div>
         </div>
-      </div>
-      <button class="btn" id="load-rankings-btn">Load Rankings</button>
+      </div></div>
       <button class="btn btn-secondary" id="compare-selected-btn" disabled>Compare Selected</button>
     </div>
 
