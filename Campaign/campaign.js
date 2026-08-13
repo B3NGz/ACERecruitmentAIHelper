@@ -136,7 +136,7 @@ function renderCampaignTable(campaigns) {
             <tr class="${rowClass}" data-status="${status}">
 
                 <td>
-                    <a href="https://b3ngz.github.io/Campaign/campaign-details.html?id=${c.id}">
+                    <a href="https://b3ngz.github.io/ACERecruitmentAIHelper/Campaign/campaign-details.html?id=${c.id}">
                         ${c.jobTitle}
                     </a>
                 </td>
@@ -161,7 +161,7 @@ function renderCampaignTable(campaigns) {
 
                 <td>
                     <a
-                        href="https://b3ngz.github.io/Campaign/campaign-details.html?id=${c.id}"
+                        href="https://b3ngz.github.io/ACERecruitmentAIHelper/Campaign/campaign-details.html?id=${c.id}"
                         class="btn btn-secondary">
                         View
                     </a>
