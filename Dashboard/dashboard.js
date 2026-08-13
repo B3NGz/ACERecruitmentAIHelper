@@ -80,7 +80,7 @@ function renderActiveCampaigns(db) {
       : 'N/A';
 
     return `<tr>
-      <td><a href="../Campaign/campaign-details.html?id=${campaign.id}" style="color:var(--link-color);text-decoration:none;">${campaign.jobTitle}</a></td>
+      <td><a href="https://b3ngz.github.io/ACERecruitmentAIHelper/Campaign/campaign-details.html?id=${campaign.id}" style="color:var(--link-color);text-decoration:none;">${campaign.jobTitle}</a></td>
       <td>${campaign.clientName}</td>
       <td><span class="badge ${getStatusBadgeClass(campaign.status)}">${campaign.status}</span></td>
       <td>${applicants.length}</td>
