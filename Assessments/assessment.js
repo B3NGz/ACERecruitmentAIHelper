@@ -87,7 +87,7 @@ function renderAssessments() {
     return `
       <tr>
         <td><a href="../Applicants/applicant-details.html?id=${a.applicantId}" style="color:var(--link-color);text-decoration:none;">${candidateName}</a></td>
-        <td><a href="../Campaign/campaign-details.html?id=${a.campaignId}" style="color:var(--link-color);text-decoration:none;">${campaignName}</a></td>
+        <td><a href="https://b3ngz.github.io/ACERecruitmentAIHelper/Campaign/campaign-details.html?id=${a.campaignId}" style="color:var(--link-color);text-decoration:none;">${campaignName}</a></td>
         <td><strong>${a.overallScore}</strong></td>
         <td><span class="badge ${recClass} recommendation-preview">${a.recommendation}</span></td>
         <td>${displayDate}</td>
