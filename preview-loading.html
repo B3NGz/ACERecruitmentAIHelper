@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="Assets/images/favicon.svg" />
+  <link rel="apple-touch-icon" href="Assets/images/logo.png" />
+  <meta name="theme-color" content="#0f1f2c" />
+  <title>Preview – Loading Modal</title>
+  <style>
+    /* ─── Minimal theme variables ─── */
+    :root {
+      --bg-body: #F0F6FA;
+      --bg-surface: rgba(255,255,255,0.85);
+      --bg-surface-solid: #FFFFFF;
+      --border-light: rgba(61, 44, 42, 0.08);
+      --text-primary: #1A1210;
+      --text-secondary: #3D2C2A;
+      --text-muted: #6B5A57;
+      --clr-sky-aqua: #6BC6CC;
+      --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --shadow-card: 0 8px 32px rgba(0,0,0,0.12);
+      --radius-card: 20px;
+    }
+
+    .dark {
+      --bg-body: #0F1318;
+      --bg-surface: rgba(30, 38, 48, 0.85);
+      --bg-surface-solid: #1A2028;
+      --border-light: rgba(255,255,255,0.06);
+      --text-primary: rgba(255,255,255,0.95);
+      --text-secondary: rgba(255,255,255,0.80);
+      --text-muted: rgba(255,255,255,0.55);
+      --clr-sky-aqua: #6BC6CC;
+      --shadow-card: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    body {
+      font-family: var(--font-base);
+      background: var(--bg-body);
+      color: var(--text-secondary);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s ease;
+      padding: 2rem;
+    }
+
+    .demo-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-card);
+      padding: 3rem;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(4px);
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    p { opacity: 0.7; margin-bottom: 2rem; }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn {
+      padding: 0.65rem 1.8rem;
+      border: none;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: var(--clr-sky-aqua);
+      color: white;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 16px rgba(107,198,204,0.35);
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(107,198,204,0.45); }
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      box-shadow: none;
+      border: 1px solid var(--border-light);
+    }
+    .btn-secondary:hover { background: var(--bg-body); }
+
+    .dark-toggle-btn {
+      margin-top: 1rem;
+      background: transparent;
+      border: 1px solid var(--border-light);
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    /* ─── LOADING MODAL (centered card) ─── */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loading-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: all;
+    }
+
+    .loading-modal {
+      background: var(--bg-surface-solid, #FFFFFF);
+      border-radius: var(--radius-card, 20px);
+      padding: 2.5rem 3rem;
+      max-width: 360px;
+      width: 100%;
+      text-align: center;
+      box-shadow: var(--shadow-card, 0 8px 32px rgba(0,0,0,0.12));
+      border: 1px solid var(--border-light, rgba(61,44,42,0.08));
+      animation: modalPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      transform: scale(0.9);
+      opacity: 0;
+    }
+
+    .loading-overlay.active .loading-modal {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .loading-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      border-radius: 16px;
+      margin-bottom: 0.5rem;
+      background: white;
+      padding: 6px;
+    }
+
+    .loading-spinner {
+      width: 44px;
+      height: 44px;
+      margin: 0.5rem auto 1rem;
+      border-radius: 50%;
+      border: 4px solid var(--border-light, rgba(0,0,0,0.08));
+      border-top-color: var(--clr-sky-aqua, #6BC6CC);
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+      font-family: var(--font-base, -apple-system, sans-serif);
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary, #3D2C2A);
+      margin: 0;
+      letter-spacing: 0.01em;
+    }
+
+    .loading-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted, #6B5A57);
+      margin-top: 0.25rem;
+      font-weight: 400;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes modalPopIn {
+      0% { transform: scale(0.92) translateY(10px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .loading-spinner { animation-duration: 1.5s; }
+      .loading-modal { animation: none; opacity: 1; transform: scale(1); }
+      .loading-overlay.active .loading-modal { animation: none; opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       LOADING MODAL (centered card)
+       ============================================================ -->
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-modal">
+      <img src="./Assets/images/logo.png" alt="ACERecruit" class="loading-logo" />
+      <div class="loading-spinner"></div>
+      <p class="loading-text" id="loadingMessage" data-i18n="loading">Loading...</p>
+      <p class="loading-sub" id="loadingSub">Please wait</p>
+    </div>
+  </div>
+
+  <!-- ===== DEMO CONTROLS ===== -->
+  <div class="demo-card">
+    <h1>Loading Modal Preview</h1>
+    <p>Click the buttons below to test the modal.</p>
+
+    <div class="btn-group">
+      <button class="btn" id="showBtn">Show Loading</button>
+      <button class="btn" id="showCustomBtn">Show with Message</button>
+      <button class="btn btn-secondary" id="hideBtn">Hide</button>
+      <button class="btn btn-secondary" id="autoHideBtn">Auto-hide (2s)</button>
+    </div>
+
+    <button class="dark-toggle-btn" id="darkToggle">Toggle Dark Mode</button>
+    <p style="font-size:0.75rem;margin-top:1rem;opacity:0.5;">
+      The modal automatically adapts to the current theme.
+    </p>
+  </div>
+
+  <script>
+    // ============================================================
+    // MODAL CONTROLS
+    // ============================================================
+    (function() {
+      'use strict';
+      const overlay = document.getElementById('loadingOverlay');
+      const msgEl = document.getElementById('loadingMessage');
+      const subEl = document.getElementById('loadingSub');
+
+      window.showLoading = function(message, subMessage) {
+        if (!overlay) return;
+        if (msgEl && message) msgEl.textContent = message;
+        if (subEl) {
+          subEl.textContent = subMessage || 'Please wait';
+          subEl.style.display = subMessage ? 'block' : 'none';
+        }
+        overlay.classList.add('active');
+      };
+
+      window.hideLoading = function() {
+        if (!overlay) return;
+        overlay.classList.remove('active');
+        if (msgEl) msgEl.textContent = 'Loading...';
+        if (subEl) {
+          subEl.textContent = 'Please wait';
+          subEl.style.display = 'block';
+        }
+      };
+
+      window.hideLoadingAfter = function(ms) {
+        setTimeout(window.hideLoading, ms);
+      };
+    })();
+
+    // ============================================================
+    // DEMO BUTTONS
+    // ============================================================
+    document.getElementById('showBtn').addEventListener('click', function() {
+      window.showLoading();
+    });
+
+    document.getElementById('showCustomBtn').addEventListener('click', function() {
+      window.showLoading('Saving data...', 'This may take a moment');
+    });
+
+    document.getElementById('hideBtn').addEventListener('click', function() {
+      window.hideLoading();
+    });
+
+    document.getElementById('autoHideBtn').addEventListener('click', function() {
+      window.showLoading('Please wait...', 'Auto-hiding in 2 seconds');
+      window.hideLoadingAfter(2000);
+    });
+
+    // ============================================================
+    // DARK MODE TOGGLE
+    // ============================================================
+    document.getElementById('darkToggle').addEventListener('click', function() {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('demoTheme', isDark ? 'dark' : 'light');
+      this.textContent = isDark ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+    });
+
+    if (localStorage.getItem('demoTheme') === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.getElementById('darkToggle').textContent = 'Toggle Light Mode';
+    }
+  </script>
+</body>
+</html>
