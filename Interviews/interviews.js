@@ -65,7 +65,7 @@ function renderInterviews() {
     return `
       <tr>
         <td><a href="../Applicants/applicant-details.html?id=${i.applicantId}" style="color:var(--link-color);text-decoration:none;">${i.applicantName}</a></td>
-        <td><a href="../Campaign/campaign-details.html?id=${i.campaignId}" style="color:var(--link-color);text-decoration:none;">${i.campaignName}</a></td>
+        <td><a href="https://b3ngz.github.io/ACERecruitmentAIHelper/Campaign/campaign-details.html?id=${i.campaignId}" style="color:var(--link-color);text-decoration:none;">${i.campaignName}</a></td>
         <td>${i.interviewer}</td>
         <td>${date} ${time}</td>
         <td><span class="badge ${statusClass}">${i.status}</span></td>
