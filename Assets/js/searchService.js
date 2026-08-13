@@ -52,7 +52,7 @@ export async function getSearchIndex() {
     id: c.id,
     title: c.jobTitle,
     subtitle: `Client: ${c.clientName} • ${c.status}`,
-    url: `../Campaign/campaign-details.html?id=${c.id}`,
+    url: `https://b3ngz.github.io/ACERecruitmentAIHelper/Campaign/campaign-details.html?id=${c.id}`,
     type: 'campaign',
     icon: campaignIcon,
     searchText: `${c.jobTitle} ${c.clientName} ${c.status} ${c.jobDescription || ''}`.toLowerCase(),
